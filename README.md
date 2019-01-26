@@ -11,7 +11,7 @@ $ epoch "2019-01-25 21:51:38 +0100 CET"
 1548449498
 ```
 
-Currently, it's a fastly hacked tool, which solves my needs, but I think it might be useful for other people, too.
+Currently, it's a fastly hacked tool, which solves my needs, but I thought it might be useful for other people, too.
 
 ## Installation
 
@@ -62,10 +62,17 @@ $ epoch 1548449513940562000
 2019-01-25 21:51:53.940562 +0100 CET
 ```
 
-Negative timestamp:
+negative timestamp:
 
 ``` text
 $ epoch -- -15484495
+1969-07-05 19:45:05 +0100 CET
+```
+
+or using the pipe:
+
+``` text
+$ echo -15484495 | epoch
 1969-07-05 19:45:05 +0100 CET
 ```
 
