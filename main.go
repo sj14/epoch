@@ -147,4 +147,6 @@ func main() {
 		printEpoch(t, *nano)
 		return
 	}
+
+	log.Fatalln("failed to convert input")
 }
