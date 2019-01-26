@@ -29,6 +29,7 @@ func main() {
 		if err != nil {
 			log.Fatalln("failed to read input")
 		}
+		input = strings.TrimSpace(input)
 	} else { // from argument
 		if flag.NArg() > 1 {
 			log.Fatalln("takes at most one input")
