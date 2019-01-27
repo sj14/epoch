@@ -39,13 +39,13 @@ func main() {
 
 	// if the input can be parsed as an int, we assume it's an epoch timestamp
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
-		printHuman(toHuman(i, guess), *local)
+		printFormatted(fromTimestamp(i, guess), *local)
 		return
 	}
 
 	// output unix timestamp
-	if t, err := toUnix(input); err == nil {
-		printEpoch(t, *nano)
+	if t, err := fromFormatted(input); err == nil {
+		printTimestamp(t, *nano)
 		return
 	}
 
@@ -59,7 +59,7 @@ func abs(i int) int {
 	return i
 }
 
-func printEpoch(t time.Time, nano bool) {
+func printTimestamp(t time.Time, nano bool) {
 	epoch := t.Unix()
 	if nano {
 		epoch = t.UnixNano()
@@ -68,7 +68,7 @@ func printEpoch(t time.Time, nano bool) {
 	fmt.Println(epoch)
 }
 
-func printHuman(t time.Time, local bool) {
+func printFormatted(t time.Time, local bool) {
 	// TODO: local not working
 	if local {
 		t = t.Local()
@@ -85,7 +85,7 @@ const (
 	nsec
 )
 
-func toHuman(timestamp int64, typ tsType) time.Time {
+func fromTimestamp(timestamp int64, typ tsType) time.Time {
 	switch typ {
 	case sec:
 		return time.Unix(timestamp, 0)
@@ -111,7 +111,7 @@ func toHuman(timestamp int64, typ tsType) time.Time {
 	}
 }
 
-func toUnix(input string) (time.Time, error) {
+func fromFormatted(input string) (time.Time, error) {
 	if t, err := time.Parse(time.RFC1123, input); err == nil {
 		return t, nil
 	}
