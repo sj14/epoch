@@ -1,9 +1,9 @@
 # epoch
 
-`epoch` converts unix timestamps to human readable formats and vice-versa.
+`epoch` converts unix timestamps to human readable formats and vice versa.
 
 Why?  
-To convert timestamps to dates, you have to run different commands for Linux and MacOS: `date -d @1267619929` vs `date -r 1267619929`, and what about handling nanosecond timestamps? (seriously, I don't know how to do this with `date`)  
+To convert timestamps to dates, you have to run different commands for Linux and macOS: `date -d @1267619929` vs `date -r 1267619929`, and what about handling nanosecond timestamps? Seriously, I don't know how to do this with `date`.  
 Furthermore, have you ever tried converting a time formatted string such as `"2019-01-25 21:51:38 +0100 CET"` to a timestamp? Of course, you can do this somehow, but all ways I've found so far were too cumbersome. This tool tries to solve all this with ease:
 
 ```text
@@ -21,7 +21,7 @@ go get -u github.com/sj14/epoch
 
 ## Supported Formats
 
-All current Go formats as of 26.01.2019 (https://golang.org/pkg/time/#pkg-constants):
+All current Go formats as of 2019-01-26 (https://golang.org/pkg/time/#pkg-constants):
 
 ``` go
 ANSIC       = "Mon Jan _2 15:04:05 2006"
