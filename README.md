@@ -88,6 +88,8 @@ $ epoch "2019-01-25 21:51:38.272173 +0100 CET"
 nanoseconds:
 
 ```text
-$ epoch -nsec "2019-01-25 21:51:38.272173 +0100 CET"
+$ epoch unit ns "2019-01-25 21:51:38.272173 +0100 CET"
 1548449498272173000
 ```
+
+available units: `s`, `ms`, `us`, `ns`

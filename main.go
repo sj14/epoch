@@ -13,13 +13,42 @@ import (
 	"time"
 )
 
+type timeUnit byte
+
+const (
+	unitSeconds timeUnit = iota
+	unitMilliseconds
+	unitMicroseconds
+	unitNanoseconds
+)
+
+func toUnit(input string) (timeUnit, error) {
+	switch input {
+	case "s":
+		return unitSeconds, nil
+	case "ms":
+		return unitMilliseconds, nil
+	case "us":
+		return unitMicroseconds, nil
+	case "ns":
+		return unitNanoseconds, nil
+	}
+	return 255, fmt.Errorf("failed to convert %v to time unit", input)
+}
+
 func main() {
 	var (
-		input string
-		nano  = flag.Bool("nsec", false, "use nanoseconds instead of seconds")
-		local = flag.Bool("local", false, "use local time instead of UTC")
+		input      string
+		unitFlag   = flag.String("unit", "s", "unit for timestamp output: s, ms, us, ns")
+		formatFlag = flag.String("format", "UnixDate", "TODO")
+		localFal   = flag.Bool("local", false, "use local time instead of UTC")
 	)
 	flag.Parse()
+
+	unit, err := toUnit(*unitFlag)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// read program input
 	if flag.NArg() == 0 { // from stdin/pipe
@@ -39,13 +68,13 @@ func main() {
 
 	// if the input can be parsed as an int, we assume it's an epoch timestamp
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
-		printFormatted(fromTimestamp(i, guess), *local)
+		printFormatted(fromTimestamp(i), *formatFlag, *localFal)
 		return
 	}
 
 	// output unix timestamp
 	if t, err := fromFormatted(input); err == nil {
-		printTimestamp(t, *nano)
+		printTimestamp(t, unit)
 		return
 	}
 
@@ -59,41 +88,38 @@ func abs(i int) int {
 	return i
 }
 
-func printTimestamp(t time.Time, nano bool) {
+func printTimestamp(t time.Time, unit timeUnit) {
 	epoch := t.Unix()
-	if nano {
+
+	switch unit {
+	case unitSeconds:
+		// calculated as default value,
+		// nothing to to
+	case unitMilliseconds:
+		epoch = t.UnixNano() / (1000 * 1000)
+	case unitMicroseconds:
+		epoch = t.UnixNano() / 1000
+	case unitNanoseconds:
 		epoch = t.UnixNano()
+	default:
+		panic("forgot to add a unit")
 	}
 
 	fmt.Println(epoch)
 }
 
-func printFormatted(t time.Time, local bool) {
+func printFormatted(t time.Time, format string, local bool) {
 	// TODO: local not working
 	if local {
 		t = t.Local()
 	}
 
-	fmt.Println(t)
+	// TODO: use format parameter
+	fmt.Println(t.Format(time.UnixDate))
 }
 
-type tsType byte
-
-const (
-	guess tsType = iota
-	sec
-	nsec
-)
-
-func fromTimestamp(timestamp int64, typ tsType) time.Time {
-	switch typ {
-	case sec:
-		return time.Unix(timestamp, 0)
-	case nsec:
-		return time.Unix(0, timestamp)
-	}
-
-	// neither seconds nor nanoseconds, guess type
+func fromTimestamp(timestamp int64) time.Time {
+	// guess if it's seconds or nanoseconds
 	var (
 		now     = time.Now()
 		lenIn   = len(fmt.Sprintf("%v", timestamp))          // number of digits of timestamp to guess
