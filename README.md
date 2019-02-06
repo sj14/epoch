@@ -2,7 +2,7 @@
 
 `epoch` converts unix timestamps to human readable formats and vice versa.
 
-Why?  
+**Why?**  
 To convert timestamps to dates, you have to run different commands for Linux and macOS: `date -d @1267619929` vs `date -r 1267619929`, and what about handling nanosecond timestamps? Seriously, I don't know how to do this with `date`.  
 Furthermore, have you ever tried converting a time formatted string such as `"2019-01-25 21:51:38 +0100 CET"` to a timestamp? Of course, you can do this somehow, but all ways I've found so far were too cumbersome. This tool tries to solve all this with ease:
 
@@ -11,7 +11,7 @@ $ epoch "2019-01-25 21:51:38 +0100 CET"
 1548449498
 ```
 
-Currently, it's a fastly hacked tool, which solves my needs, but I thought it might be useful for other people, too.
+Currently, it's a quickly hacked tool, which solves my needs, but I thought it might be useful for other people, too.
 
 ## Installation
 
