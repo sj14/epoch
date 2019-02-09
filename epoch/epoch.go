@@ -19,6 +19,13 @@ const (
 	UnitNanoseconds
 )
 
+// ParseUnit takes a string and returns the corresponding unit.
+// Allowed inputs:
+// ""   (UnitGuess)
+// "s"  (UnitSeconds)
+// "ms" (UnitMilliseconds)
+// "us" (UnitMicroseconds)
+// "ns" (UnitNanoseconds)
 func ParseUnit(input string) (TimeUnit, error) {
 	switch input {
 	case "":
@@ -35,7 +42,8 @@ func ParseUnit(input string) (TimeUnit, error) {
 	return 255, fmt.Errorf("failed to convert %v to time unit", input)
 }
 
-func Timestamp(t time.Time, unit TimeUnit) (int64, error) {
+// ToTimestamp takes Go's default time type returns a timestamp of the given unit.
+func ToTimestamp(t time.Time, unit TimeUnit) (int64, error) {
 	epoch := t.Unix()
 
 	switch unit {
@@ -62,9 +70,9 @@ func abs(i int) int {
 	return i
 }
 
+// ParseTimestamp takes a timestamp of the given unit and returns Go's default time type.
 // TODO: add milli and microseconds
-func FromTimestamp(timestamp int64, unit TimeUnit) (time.Time, error) {
-
+func ParseTimestamp(timestamp int64, unit TimeUnit) (time.Time, error) {
 	switch unit {
 	case UnitSeconds:
 		return time.Unix(timestamp, 0), nil
@@ -100,7 +108,9 @@ func FromTimestamp(timestamp int64, unit TimeUnit) (time.Time, error) {
 	}
 }
 
-func FromFormatted(input string) (time.Time, error) {
+// ParseFormatted takes a human readable time string and returns Go's default time type.
+// Example input: "Mon, 02 Jan 2006 15:04:05 MST".
+func ParseFormatted(input string) (time.Time, error) {
 	// "Mon, 02 Jan 2006 15:04:05 MST"
 	if t, err := time.Parse(time.RFC1123, input); err == nil {
 		return t, nil

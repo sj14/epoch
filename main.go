@@ -45,7 +45,7 @@ func main() {
 
 	// if the input can be parsed as an int, we assume it's an epoch timestamp
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
-		t, err := epoch.FromTimestamp(i, unit)
+		t, err := epoch.ParseTimestamp(i, unit)
 		if err != nil {
 			log.Fatalf("failed to convert from timestamp: %v", err)
 		}
@@ -56,13 +56,13 @@ func main() {
 	// output unix timestamp
 
 	// convert fromatted string to time type
-	t, err := epoch.FromFormatted(input)
+	t, err := epoch.ParseFormatted(input)
 	if err != nil {
 		log.Fatalf("failed to convert input: %v", err)
 	}
 
 	// convert time to timestamp
-	timestamp, err := epoch.Timestamp(t, unit)
+	timestamp, err := epoch.ToTimestamp(t, unit)
 	if err != nil {
 		log.Fatalf("failed to convert timestamp: %v", err)
 	}
