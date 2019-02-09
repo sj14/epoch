@@ -16,7 +16,7 @@ import (
 func main() {
 	var (
 		input      string
-		unitFlag   = flag.String("unit", "s", "unit for timestamp output: s, ms, us, ns")
+		unitFlag   = flag.String("unit", "guess", "unit for timestamp output: s, ms, us, ns")
 		formatFlag = flag.String("format", "UnixDate", "TODO")
 		localFal   = flag.Bool("local", false, "use local time instead of UTC")
 	)

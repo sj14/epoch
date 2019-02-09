@@ -54,14 +54,30 @@ Thu Jan  1 01:00:01 CET 1970
 
 #### guess the unit
 
-seconds (auto guessed):
+Guess the unit. Internally, the guess is done by comparing the number of digits with the current epoch timestamps (in `s`, `ms`, `us`, `ns`) of your machine. The smallest difference wins.
+
+seconds:
 
 ``` text
 $ epoch 1548449513
 2019-01-25 21:51:53 +0100 CET
 ```
 
-nanoseconds (auto guessed):
+milliseconds:
+
+``` text
+$ epoch 1548449513940
+2019-01-25 21:51:53.940 +0100 CET
+```
+
+microseconds:
+
+``` text
+$ epoch 1548449513940562
+2019-01-25 21:51:53.940562 +0100 CET
+```
+
+nanoseconds:
 
 ``` text
 $ epoch 1548449513940562000
