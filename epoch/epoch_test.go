@@ -120,3 +120,66 @@ func TestToTimestamp(t *testing.T) {
 		})
 	}
 }
+
+func TestParseTimestamp(t *testing.T) {
+	type givenType struct {
+		timestamp int64
+		unit      TimeUnit
+	}
+
+	type expecedType struct {
+		time time.Time
+		err  error
+	}
+
+	testCases := []struct {
+		description string
+		given       givenType
+		expected    expecedType
+	}{
+		{
+			description: "empty",
+			expected:    expecedType{time: time.Unix(0, 0)},
+		},
+		{
+			description: "wrong unit",
+			given:       givenType{timestamp: 1549741094, unit: 42},
+			expected:    expecedType{err: errors.New("unknown unit '42'")},
+		},
+		{
+			description: "seconds",
+			given:       givenType{timestamp: 1549741094, unit: UnitSeconds},
+			expected:    expecedType{time: time.Date(2019, 02, 9, 20, 38, 14, 00000000, time.Local)},
+		},
+		{
+			description: "milliseconds",
+			given:       givenType{timestamp: 1549741094065, unit: UnitMilliseconds},
+			expected:    expecedType{time: time.Date(2019, 02, 9, 20, 38, 14, 65000000, time.Local)},
+		},
+		{
+			description: "microseconds",
+			given:       givenType{timestamp: 1549741094065178, unit: UnitMicroseconds},
+			expected:    expecedType{time: time.Date(2019, 02, 9, 20, 38, 14, 65178000, time.Local)},
+		},
+		{
+			description: "nanoseconds",
+			given:       givenType{timestamp: 1549741094065178000, unit: UnitNanoseconds},
+			expected:    expecedType{time: time.Date(2019, 02, 9, 20, 38, 14, 65178000, time.Local)},
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.description, func(t *testing.T) {
+			time, err := ParseTimestamp(tt.given.timestamp, tt.given.unit)
+			if err != nil {
+				require.EqualError(t, tt.expected.err, err.Error(), err)
+				return
+			} else if tt.expected.err != nil {
+				require.EqualError(t, err, tt.expected.err.Error(), tt.expected.err)
+				return
+			}
+
+			require.Equal(t, tt.expected.time, time)
+		})
+	}
+}
