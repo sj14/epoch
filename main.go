@@ -22,11 +22,6 @@ func main() {
 	)
 	flag.Parse()
 
-	unit, err := epoch.ParseUnit(*unitFlag)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// read program input
 	if flag.NArg() == 0 { // from stdin/pipe
 		reader := bufio.NewReader(os.Stdin)
@@ -45,6 +40,21 @@ func main() {
 
 	// if the input can be parsed as an int, we assume it's an epoch timestamp
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
+		unit, err := epoch.ParseUnit(*unitFlag)
+		if err != nil {
+			unit = epoch.GuessUnit(i)
+			switch unit {
+			case epoch.UnitSeconds:
+				fmt.Println("guessed unit seconds")
+			case epoch.UnitMilliseconds:
+				fmt.Println("guessed unit milliseconds")
+			case epoch.UnitMicroseconds:
+				fmt.Println("guessed unit microseconds")
+			case epoch.UnitNanoseconds:
+				fmt.Println("guessed unit nanoseconds")
+			}
+		}
+
 		t, err := epoch.ParseTimestamp(i, unit)
 		if err != nil {
 			log.Fatalf("failed to convert from timestamp: %v", err)
@@ -59,6 +69,13 @@ func main() {
 	t, err := epoch.ParseFormatted(input)
 	if err != nil {
 		log.Fatalf("failed to convert input: %v", err)
+	}
+
+	unit, err := epoch.ParseUnit(*unitFlag)
+	if err != nil {
+		// use seconds as default unit
+		fmt.Println("using seconds as unit")
+		unit = epoch.UnitSeconds
 	}
 
 	// convert time to timestamp
