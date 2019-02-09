@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -17,7 +18,7 @@ func main() {
 	var (
 		input      string
 		unitFlag   = flag.String("unit", "guess", "unit for timestamp output: s, ms, us, ns")
-		formatFlag = flag.String("format", "UnixDate", "TODO")
+		formatFlag = flag.String("format", "unix", "human readable output format, see readme for details")
 		localFal   = flag.Bool("local", false, "use local time instead of UTC")
 	)
 	flag.Parse()
@@ -38,40 +39,29 @@ func main() {
 		input = flag.Arg(0)
 	}
 
+	if input == "" {
+		input = time.Now().String()
+	}
+
 	// if the input can be parsed as an int, we assume it's an epoch timestamp
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
-		unit, err := epoch.ParseUnit(*unitFlag)
-		if err != nil {
-			unit = epoch.GuessUnit(i)
-			switch unit {
-			case epoch.UnitSeconds:
-				fmt.Println("guessed unit seconds")
-			case epoch.UnitMilliseconds:
-				fmt.Println("guessed unit milliseconds")
-			case epoch.UnitMicroseconds:
-				fmt.Println("guessed unit microseconds")
-			case epoch.UnitNanoseconds:
-				fmt.Println("guessed unit nanoseconds")
-			}
-		}
-
-		t, err := epoch.ParseTimestamp(i, unit)
-		if err != nil {
-			log.Fatalf("failed to convert from timestamp: %v", err)
-		}
+		t := outputTimestamp(*unitFlag, i)
 		printFormatted(t, *formatFlag, *localFal)
 		return
 	}
 
-	// output unix timestamp
+	// output formatted time
+	outputFormatted(input, *unitFlag)
+}
 
+func outputFormatted(input, unitFlag string) {
 	// convert fromatted string to time type
 	t, err := epoch.ParseFormatted(input)
 	if err != nil {
 		log.Fatalf("failed to convert input: %v", err)
 	}
 
-	unit, err := epoch.ParseUnit(*unitFlag)
+	unit, err := epoch.ParseUnit(unitFlag)
 	if err != nil {
 		// use seconds as default unit
 		fmt.Println("using seconds as unit")
@@ -86,12 +76,72 @@ func main() {
 	fmt.Println(timestamp)
 }
 
+func outputTimestamp(unitFlag string, i int64) time.Time {
+	unit, err := epoch.ParseUnit(unitFlag)
+	if err != nil {
+		unit = epoch.GuessUnit(i)
+		switch unit {
+		case epoch.UnitSeconds:
+			fmt.Println("guessed unit seconds")
+		case epoch.UnitMilliseconds:
+			fmt.Println("guessed unit milliseconds")
+		case epoch.UnitMicroseconds:
+			fmt.Println("guessed unit microseconds")
+		case epoch.UnitNanoseconds:
+			fmt.Println("guessed unit nanoseconds")
+		}
+	}
+
+	t, err := epoch.ParseTimestamp(i, unit)
+	if err != nil {
+		log.Fatalf("failed to convert from timestamp: %v", err)
+	}
+	return t
+}
+
 func printFormatted(t time.Time, format string, local bool) {
 	// TODO: local not working
 	if local {
 		t = t.Local()
 	}
 
-	// TODO: use format parameter
-	fmt.Println(t.Format(time.UnixDate))
+	format = strings.ToLower(format)
+
+	switch format {
+	case "unix":
+		fmt.Println(t.Format(time.UnixDate))
+	case "ruby":
+		fmt.Println(t.Format(time.RubyDate))
+	case "ansic":
+		fmt.Println(t.Format(time.ANSIC))
+	case "rfc822":
+		fmt.Println(t.Format(time.RFC822))
+	case "rfc822z":
+		fmt.Println(t.Format(time.RFC822Z))
+	case "rfc850":
+		fmt.Println(t.Format(time.RFC850))
+	case "rfc1123":
+		fmt.Println(t.Format(time.RFC1123))
+	case "rfc1123z":
+		fmt.Println(t.Format(time.RFC1123Z))
+	case "rfc3339":
+		fmt.Println(t.Format(time.RFC3339))
+	case "rfc3339nano":
+		fmt.Println(t.Format(time.RFC3339Nano))
+	case "kitchen":
+		fmt.Println(t.Format(time.Kitchen))
+	case "stamp":
+		fmt.Println(t.Format(time.Stamp))
+	case "stampms":
+		fmt.Println(t.Format(time.StampMilli))
+	case "stampus":
+		fmt.Println(t.Format(time.StampMicro))
+	case "stampns":
+		fmt.Println(t.Format(time.StampNano))
+	case "http":
+		fmt.Println(t.Format(http.TimeFormat))
+	default:
+		fmt.Printf("failed to parse format '%v' using 'unix' as fallback\n", format)
+		fmt.Println(t.Format(time.UnixDate))
+	}
 }

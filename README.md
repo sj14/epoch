@@ -33,23 +33,40 @@ go get -u github.com/sj14/epoch
 #### conversion based on given unit
 
 ``` text
-$ epoch --unit s 1548449513
+$ epoch -unit s 1548449513
 Fri Jan 25 21:51:53 CET 2019
 ```
 
 ``` text
-$ epoch --unit ms 1548449513
+$ epoch -unit ms 1548449513
 Sun Jan 18 23:07:29 CET 1970
 ```
 
 ``` text
-$ epoch --unit us 1548449513
+$ epoch -unit us 1548449513
 Thu Jan  1 01:25:48 CET 1970
 ```
 
 ``` text
-$ epoch --unit ns 1548449513
+$ epoch -unit ns 1548449513
 Thu Jan  1 01:00:01 CET 1970
+```
+
+#### set the output format
+
+``` text
+$ epoch -unit ms -format rfc850 1548449513
+Sunday, 18-Jan-70 23:07:29 CET
+```
+
+``` text
+$ epoch -unit ms -format ruby 1548449513
+Sun Jan 18 23:07:29 +0100 1970
+```
+
+``` text
+$ epoch -unit ms -format ansic 1548449513
+Sun Jan 18 23:07:29 1970
 ```
 
 #### guess the unit
@@ -103,28 +120,28 @@ $ echo -15484495 | epoch
 seconds (default when no `unit` flag given):
 
 ``` text
-$ epoch --unit s "2019-01-25 21:51:38.272173 +0100 CET"
+$ epoch -unit s "2019-01-25 21:51:38.272173 +0100 CET"
 1548449498
 ```
 
 milliseconds:
 
 ```text
-$ epoch --unit ms "2019-01-25 21:51:38.272173 +0100 CET"
+$ epoch -unit ms "2019-01-25 21:51:38.272173 +0100 CET"
 1548449498272
 ```
 
 microseconds:
 
 ```text
-$ epoch --unit us "2019-01-25 21:51:38.272173 +0100 CET"
+$ epoch -unit us "2019-01-25 21:51:38.272173 +0100 CET"
 1548449498272173
 ```
 
 nanoseconds:
 
 ```text
-$ epoch --unit ns "2019-01-25 21:51:38.272173 +0100 CET"
+$ epoch -unit ns "2019-01-25 21:51:38.272173 +0100 CET"
 1548449498272173000
 ```
 
