@@ -20,6 +20,7 @@ func main() {
 		unitFlag   = flag.String("unit", "guess", "unit for timestamp output: s, ms, us, ns")
 		formatFlag = flag.String("format", "", "human readable output format, see readme for details")
 		utcFlag    = flag.Bool("utc", false, "use UTC instead of local zone")
+		quieteFlag = flag.Bool("quiete", false, "don't ouput guessed units")
 	)
 	flag.Parse()
 
@@ -45,16 +46,16 @@ func main() {
 
 	// if the input can be parsed as an int, we assume it's an epoch timestamp
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
-		t := outputTimestamp(*unitFlag, i)
+		t := outputTimestamp(*unitFlag, i, *quieteFlag)
 		printFormatted(t, *formatFlag, *utcFlag)
 		return
 	}
 
 	// output formatted time
-	outputFormatted(input, *unitFlag)
+	outputFormatted(input, *unitFlag, *quieteFlag)
 }
 
-func outputFormatted(input, unitFlag string) {
+func outputFormatted(input, unitFlag string, quieteFlag bool) {
 	// convert fromatted string to time type
 	t, err := epoch.ParseFormatted(input)
 	if err != nil {
@@ -64,8 +65,10 @@ func outputFormatted(input, unitFlag string) {
 	unit, err := epoch.ParseUnit(unitFlag)
 	if err != nil {
 		// use seconds as default unit
-		fmt.Println("using seconds as unit")
 		unit = epoch.UnitSeconds
+		if !quieteFlag {
+			fmt.Println("using seconds as unit")
+		}
 	}
 
 	// convert time to timestamp
@@ -76,19 +79,22 @@ func outputFormatted(input, unitFlag string) {
 	fmt.Println(timestamp)
 }
 
-func outputTimestamp(unitFlag string, i int64) time.Time {
+func outputTimestamp(unitFlag string, i int64, quieteFlag bool) time.Time {
 	unit, err := epoch.ParseUnit(unitFlag)
 	if err != nil {
 		unit = epoch.GuessUnit(i, time.Now())
-		switch unit {
-		case epoch.UnitSeconds:
-			fmt.Fprintln(os.Stderr, "guessed unit: seconds")
-		case epoch.UnitMilliseconds:
-			fmt.Fprintln(os.Stderr, "guessed unit: milliseconds")
-		case epoch.UnitMicroseconds:
-			fmt.Fprintln(os.Stderr, "guessed unit: microseconds")
-		case epoch.UnitNanoseconds:
-			fmt.Fprintln(os.Stderr, "guessed unit: nanoseconds")
+
+		if !quieteFlag {
+			switch unit {
+			case epoch.UnitSeconds:
+				fmt.Fprintln(os.Stderr, "guessed unit: seconds")
+			case epoch.UnitMilliseconds:
+				fmt.Fprintln(os.Stderr, "guessed unit: milliseconds")
+			case epoch.UnitMicroseconds:
+				fmt.Fprintln(os.Stderr, "guessed unit: microseconds")
+			case epoch.UnitNanoseconds:
+				fmt.Fprintln(os.Stderr, "guessed unit: nanoseconds")
+			}
 		}
 	}
 
