@@ -77,6 +77,7 @@ seconds:
 
 ``` text
 $ epoch 1548449513
+guessed unit seconds
 2019-01-25 21:51:53 +0100 CET
 ```
 
@@ -84,13 +85,15 @@ milliseconds:
 
 ``` text
 $ epoch 1548449513940
-2019-01-25 21:51:53.940 +0100 CET
+guessed unit milliseconds
+2019-01-25 21:51:53 +0100 CET
 ```
 
 microseconds:
 
 ``` text
 $ epoch 1548449513940562
+guessed unit microseconds
 2019-01-25 21:51:53.940562 +0100 CET
 ```
 
@@ -98,6 +101,7 @@ nanoseconds:
 
 ``` text
 $ epoch 1548449513940562000
+guessed unit nanoseconds
 2019-01-25 21:51:53.940562 +0100 CET
 ```
 
