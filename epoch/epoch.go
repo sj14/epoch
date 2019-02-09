@@ -12,8 +12,7 @@ import (
 type TimeUnit byte
 
 const (
-	UnitGuess TimeUnit = iota
-	UnitSeconds
+	UnitSeconds TimeUnit = iota
 	UnitMilliseconds
 	UnitMicroseconds
 	UnitNanoseconds
@@ -22,8 +21,6 @@ const (
 // ParseUnit takes a string and returns the corresponding unit.
 func ParseUnit(input string) (TimeUnit, error) {
 	switch input {
-	case "", "guess":
-		return UnitGuess, nil
 	case "s", "sec":
 		return UnitSeconds, nil
 	case "ms", "milli":
@@ -32,9 +29,8 @@ func ParseUnit(input string) (TimeUnit, error) {
 		return UnitMicroseconds, nil
 	case "ns", "nano":
 		return UnitNanoseconds, nil
-	default:
-		return UnitGuess, nil
 	}
+	return UnitSeconds, fmt.Errorf("failed to parse input '%v' to unit", input)
 }
 
 // ToTimestamp takes Go's default time type returns a timestamp of the given unit.
@@ -80,46 +76,47 @@ func ParseTimestamp(timestamp int64, unit TimeUnit) (time.Time, error) {
 		return time.Unix(0, timestamp), nil
 	case UnitNanoseconds:
 		return time.Unix(0, timestamp), nil
-	case UnitGuess:
-		// guess if it's seconds or nanoseconds
-		var (
-			now      = time.Now()
-			lenIn    = len(fmt.Sprintf("%v", timestamp))                      // number of digits of timestamp to guess
-			lenMill  = len(strconv.FormatInt(now.UnixNano()/(1000*1000), 10)) // number of digits in current milliseconds timestamp
-			lenMicro = len(strconv.FormatInt(now.UnixNano()/1000, 10))        // number of digits in current microseconds timestamp
-			lenSec   = len(strconv.FormatInt(now.Unix(), 10))                 // number of digits in current seconds timestamp
-			lenNano  = len(strconv.FormatInt(now.UnixNano(), 10))             // number of digits in current nanoseconds timestamp
-
-			diffSec   = abs(lenSec - lenIn)
-			diffMill  = abs(lenMill - lenIn)
-			diffMicro = abs(lenMicro - lenIn)
-			diffNano  = abs(lenNano - lenIn)
-		)
-
-		// guessing if the input is sec, ms, us or ns based on
-		// the difference of the length of the current epoch times
-		// TODO: maybe there is a better way to do this guessing.
-		if diffSec <= diffMill &&
-			diffSec <= diffMicro &&
-			diffSec <= diffNano {
-			// number of digits is closer to current seconds timestamp
-			return time.Unix(timestamp, 0), nil
-		} else if diffMill <= diffSec &&
-			diffMill <= diffMicro &&
-			diffMill <= diffNano {
-			// number of digits is closer to current milliseconds timestamp
-			return time.Unix(0, timestamp*1000*1000), nil
-		} else if diffMicro <= diffSec &&
-			diffMicro <= diffMill &&
-			diffMicro <= diffNano {
-			// number of digits is closer to current microseconds timestamp
-			return time.Unix(0, timestamp*1000), nil
-		} else {
-			// number of digits is closer to current nanoseconds timestamp
-			return time.Unix(0, timestamp), nil
-		}
 	default:
 		return time.Time{}, fmt.Errorf("unknown unit '%v'", unit)
+	}
+}
+
+func GuessUnit(timestamp int64) TimeUnit {
+	var (
+		now      = time.Now()
+		lenIn    = len(fmt.Sprintf("%v", timestamp))                      // number of digits of timestamp to guess
+		lenSec   = len(strconv.FormatInt(now.Unix(), 10))                 // number of digits in current seconds timestamp
+		lenMill  = len(strconv.FormatInt(now.UnixNano()/(1000*1000), 10)) // number of digits in current milliseconds timestamp
+		lenMicro = len(strconv.FormatInt(now.UnixNano()/1000, 10))        // number of digits in current microseconds timestamp
+		lenNano  = len(strconv.FormatInt(now.UnixNano(), 10))             // number of digits in current nanoseconds timestamp
+
+		diffSec   = abs(lenSec - lenIn)
+		diffMill  = abs(lenMill - lenIn)
+		diffMicro = abs(lenMicro - lenIn)
+		diffNano  = abs(lenNano - lenIn)
+	)
+
+	// guessing if the input is sec, ms, us or ns based on
+	// the difference of the length of the current epoch times
+	// TODO: maybe there is a better way to do this guessing.
+	if diffSec <= diffMill &&
+		diffSec <= diffMicro &&
+		diffSec <= diffNano {
+		// number of digits is closer to current seconds timestamp
+		return UnitSeconds
+	} else if diffMill <= diffSec &&
+		diffMill <= diffMicro &&
+		diffMill <= diffNano {
+		// number of digits is closer to current milliseconds timestamp
+		return UnitMilliseconds
+	} else if diffMicro <= diffSec &&
+		diffMicro <= diffMill &&
+		diffMicro <= diffNano {
+		// number of digits is closer to current microseconds timestamp
+		return UnitMicroseconds
+	} else {
+		// number of digits is closer to current nanoseconds timestamp
+		return UnitNanoseconds
 	}
 }
 
