@@ -11,7 +11,12 @@ $ epoch "2019-01-25 21:51:38 +0100 CET"
 1548449498
 ```
 
-Currently, it's a quickly hacked tool, which solves my needs, but I thought it might be useful for other people, too.
+```text
+$ epoch 1548449498
+Fri Jan 25 21:51:38 CET 2019
+```
+
+The functionallity is implemented as a package and can be used in other programs.
 
 ## Installation
 
