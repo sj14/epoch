@@ -19,7 +19,7 @@ func main() {
 		input      string
 		unitFlag   = flag.String("unit", "guess", "unit for timestamp output: s, ms, us, ns")
 		formatFlag = flag.String("format", "", "human readable output format, see readme for details")
-		localFal   = flag.Bool("local", false, "use local time instead of UTC")
+		utcFlag    = flag.Bool("utc", false, "use UTC instead of local zone")
 	)
 	flag.Parse()
 
@@ -46,7 +46,7 @@ func main() {
 	// if the input can be parsed as an int, we assume it's an epoch timestamp
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
 		t := outputTimestamp(*unitFlag, i)
-		printFormatted(t, *formatFlag, *localFal)
+		printFormatted(t, *formatFlag, *utcFlag)
 		return
 	}
 
@@ -99,10 +99,9 @@ func outputTimestamp(unitFlag string, i int64) time.Time {
 	return t
 }
 
-func printFormatted(t time.Time, format string, local bool) {
-	// TODO: local not working
-	if local {
-		t = t.Local()
+func printFormatted(t time.Time, format string, utc bool) {
+	if utc {
+		t = t.In(time.UTC)
 	}
 
 	format = strings.ToLower(format)
