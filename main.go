@@ -18,7 +18,7 @@ func main() {
 	var (
 		input      string
 		unitFlag   = flag.String("unit", "guess", "unit for timestamp output: s, ms, us, ns")
-		formatFlag = flag.String("format", "unix", "human readable output format, see readme for details")
+		formatFlag = flag.String("format", "", "human readable output format, see readme for details")
 		localFal   = flag.Bool("local", false, "use local time instead of UTC")
 	)
 	flag.Parse()
@@ -108,6 +108,8 @@ func printFormatted(t time.Time, format string, local bool) {
 	format = strings.ToLower(format)
 
 	switch format {
+	case "":
+		fmt.Println(t)
 	case "unix":
 		fmt.Println(t.Format(time.UnixDate))
 	case "ruby":
@@ -141,7 +143,7 @@ func printFormatted(t time.Time, format string, local bool) {
 	case "http":
 		fmt.Println(t.Format(http.TimeFormat))
 	default:
-		fmt.Printf("failed to parse format '%v' using 'unix' as fallback\n", format)
-		fmt.Println(t.Format(time.UnixDate))
+		fmt.Printf("failed to parse format '%v'\n", format)
+		fmt.Println(t)
 	}
 }
