@@ -19,6 +19,92 @@ Currently, it's a quickly hacked tool, which solves my needs, but I thought it m
 go get -u github.com/sj14/epoch
 ```
 
+## Examples
+
+### Timestamps to human readable format
+
+#### conversion based on given unit
+
+``` text
+$ epoch --unit s 1548449513
+Fri Jan 25 21:51:53 CET 2019
+```
+
+``` text
+$ epoch --unit ms 1548449513
+Sun Jan 18 23:07:29 CET 1970
+```
+
+``` text
+$ epoch --unit us 1548449513
+Thu Jan  1 01:25:48 CET 1970
+```
+
+``` text
+$ epoch --unit ns 1548449513
+Thu Jan  1 01:00:01 CET 1970
+```
+
+#### guess the unit
+
+seconds (auto guessed):
+
+``` text
+$ epoch 1548449513
+2019-01-25 21:51:53 +0100 CET
+```
+
+nanoseconds (auto guessed):
+
+``` text
+$ epoch 1548449513940562000
+2019-01-25 21:51:53.940562 +0100 CET
+```
+
+#### negative timestamp
+
+``` text
+$ epoch -- -15484495
+1969-07-05 19:45:05 +0100 CET
+```
+
+#### using the pipe
+
+``` text
+$ echo -15484495 | epoch
+1969-07-05 19:45:05 +0100 CET
+```
+
+### Formatted input to epoch timestamps
+
+seconds (default when no `unit` flag given):
+
+``` text
+$ epoch --unit s "2019-01-25 21:51:38.272173 +0100 CET"
+1548449498
+```
+
+milliseconds:
+
+```text
+$ epoch --unit ms "2019-01-25 21:51:38.272173 +0100 CET"
+1548449498272
+```
+
+microseconds:
+
+```text
+$ epoch --unit us "2019-01-25 21:51:38.272173 +0100 CET"
+1548449498272173
+```
+
+nanoseconds:
+
+```text
+$ epoch --unit ns "2019-01-25 21:51:38.272173 +0100 CET"
+1548449498272173000
+```
+
 ## Supported Formats
 
 All current Go formats as of 2019-01-26 (https://golang.org/pkg/time/#pkg-constants):
@@ -43,53 +129,3 @@ StampNano  = "Jan _2 15:04:05.000000000"
 // HTTP Timestamp time.RFC1123 but hard-codes GMT as the time zone.
 HTTP = "Mon, 02 Jan 2006 15:04:05 GMT"
 ```
-
-## Examples
-
-### Timestamps to human readable format
-
-seconds:
-
-``` text
-$ epoch 1548449513
-2019-01-25 21:51:53 +0100 CET
-```
-
-nanoseconds:
-
-``` text
-$ epoch 1548449513940562000
-2019-01-25 21:51:53.940562 +0100 CET
-```
-
-negative timestamp:
-
-``` text
-$ epoch -- -15484495
-1969-07-05 19:45:05 +0100 CET
-```
-
-or using the pipe:
-
-``` text
-$ echo -15484495 | epoch
-1969-07-05 19:45:05 +0100 CET
-```
-
-### Formatted input to epoch timestamps
-
-seconds:
-
-``` text
-$ epoch "2019-01-25 21:51:38.272173 +0100 CET"
-1548449498
-```
-
-nanoseconds:
-
-```text
-$ epoch unit ns "2019-01-25 21:51:38.272173 +0100 CET"
-1548449498272173000
-```
-
-available units: `s`, `ms`, `us`, `ns`
