@@ -81,14 +81,15 @@ func ParseTimestamp(timestamp int64, unit TimeUnit) (time.Time, error) {
 	}
 }
 
-func GuessUnit(timestamp int64) TimeUnit {
+// GuessUnit guesses if the input is sec, ms, us or ns based on
+// the difference of the length (number of digits) of the 'ref' epoch times.
+func GuessUnit(timestamp int64, ref time.Time) TimeUnit {
 	var (
-		now      = time.Now()
 		lenIn    = len(fmt.Sprintf("%v", timestamp))                      // number of digits of timestamp to guess
-		lenSec   = len(strconv.FormatInt(now.Unix(), 10))                 // number of digits in current seconds timestamp
-		lenMill  = len(strconv.FormatInt(now.UnixNano()/(1000*1000), 10)) // number of digits in current milliseconds timestamp
-		lenMicro = len(strconv.FormatInt(now.UnixNano()/1000, 10))        // number of digits in current microseconds timestamp
-		lenNano  = len(strconv.FormatInt(now.UnixNano(), 10))             // number of digits in current nanoseconds timestamp
+		lenSec   = len(strconv.FormatInt(ref.Unix(), 10))                 // number of digits in current seconds timestamp
+		lenMill  = len(strconv.FormatInt(ref.UnixNano()/(1000*1000), 10)) // number of digits in current milliseconds timestamp
+		lenMicro = len(strconv.FormatInt(ref.UnixNano()/1000, 10))        // number of digits in current microseconds timestamp
+		lenNano  = len(strconv.FormatInt(ref.UnixNano(), 10))             // number of digits in current nanoseconds timestamp
 
 		diffSec   = abs(lenSec - lenIn)
 		diffMill  = abs(lenMill - lenIn)
@@ -96,8 +97,6 @@ func GuessUnit(timestamp int64) TimeUnit {
 		diffNano  = abs(lenNano - lenIn)
 	)
 
-	// guessing if the input is sec, ms, us or ns based on
-	// the difference of the length of the current epoch times
 	// TODO: maybe there is a better way to do this guessing.
 	if diffSec <= diffMill &&
 		diffSec <= diffMicro &&

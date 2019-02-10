@@ -79,7 +79,7 @@ func outputFormatted(input, unitFlag string) {
 func outputTimestamp(unitFlag string, i int64) time.Time {
 	unit, err := epoch.ParseUnit(unitFlag)
 	if err != nil {
-		unit = epoch.GuessUnit(i)
+		unit = epoch.GuessUnit(i, time.Now())
 		switch unit {
 		case epoch.UnitSeconds:
 			fmt.Println("guessed unit seconds")
