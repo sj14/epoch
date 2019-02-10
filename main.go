@@ -82,13 +82,13 @@ func outputTimestamp(unitFlag string, i int64) time.Time {
 		unit = epoch.GuessUnit(i, time.Now())
 		switch unit {
 		case epoch.UnitSeconds:
-			fmt.Println("guessed unit seconds")
+			fmt.Fprintln(os.Stderr, "guessed unit: seconds")
 		case epoch.UnitMilliseconds:
-			fmt.Println("guessed unit milliseconds")
+			fmt.Fprintln(os.Stderr, "guessed unit: milliseconds")
 		case epoch.UnitMicroseconds:
-			fmt.Println("guessed unit microseconds")
+			fmt.Fprintln(os.Stderr, "guessed unit: microseconds")
 		case epoch.UnitNanoseconds:
-			fmt.Println("guessed unit nanoseconds")
+			fmt.Fprintln(os.Stderr, "guessed unit: nanoseconds")
 		}
 	}
 
@@ -142,7 +142,7 @@ func printFormatted(t time.Time, format string, utc bool) {
 	case "http":
 		fmt.Println(t.Format(http.TimeFormat))
 	default:
-		fmt.Printf("failed to parse format '%v'\n", format)
+		fmt.Fprintf(os.Stderr, "failed to parse format '%v'\n", format)
 		fmt.Println(t)
 	}
 }
