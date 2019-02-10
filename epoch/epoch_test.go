@@ -183,3 +183,54 @@ func TestParseTimestamp(t *testing.T) {
 		})
 	}
 }
+
+func TestGuessUnit(t *testing.T) {
+	type givenType struct {
+		timestamp int64
+		ref       time.Time
+	}
+
+	ref := time.Unix(0, 1549777538844829000)
+
+	type expecedType struct {
+		unit TimeUnit
+	}
+
+	testCases := []struct {
+		description string
+		given       givenType
+		expected    expecedType
+	}{
+		{
+			description: "empty",
+			expected:    expecedType{unit: UnitSeconds},
+		},
+		{
+			description: "seconds/exactly",
+			given:       givenType{timestamp: 1549777538, ref: ref},
+			expected:    expecedType{unit: UnitSeconds},
+		},
+		{
+			description: "milliseconds/exactly",
+			given:       givenType{timestamp: 1549777538844, ref: ref},
+			expected:    expecedType{unit: UnitMilliseconds},
+		},
+		{
+			description: "microseconds/exactly",
+			given:       givenType{timestamp: 1549777538844829, ref: ref},
+			expected:    expecedType{unit: UnitMicroseconds},
+		},
+		{
+			description: "nanoseconds/exactly",
+			given:       givenType{timestamp: 1549777538844829000, ref: ref},
+			expected:    expecedType{unit: UnitNanoseconds},
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.description, func(t *testing.T) {
+			unit := GuessUnit(tt.given.timestamp, tt.given.ref)
+			require.Equal(t, tt.expected.unit, unit)
+		})
+	}
+}
