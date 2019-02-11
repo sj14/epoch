@@ -234,3 +234,46 @@ func TestGuessUnit(t *testing.T) {
 		})
 	}
 }
+
+func TestParseFormatted(t *testing.T) {
+	type givenType struct {
+		formatted string
+	}
+
+	type expecedType struct {
+		time time.Time
+		err  error
+	}
+
+	testCases := []struct {
+		description string
+		given       givenType
+		expected    expecedType
+	}{
+		{
+			description: "empty",
+			given:       givenType{formatted: ""},
+			expected:    expecedType{err: ErrParseFormatted},
+		},
+		{
+			description: "rfc1123",
+			given:       givenType{formatted: "Mon, 02 Jan 2006 15:04:05 UTC"},
+			expected:    expecedType{time: time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)},
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.description, func(t *testing.T) {
+			parsed, err := ParseFormatted(tt.given.formatted)
+			if err != nil {
+				require.EqualError(t, tt.expected.err, err.Error(), err)
+				return
+			} else if tt.expected.err != nil {
+				require.EqualError(t, err, tt.expected.err.Error(), tt.expected.err)
+				return
+			}
+
+			require.Equal(t, tt.expected.time, parsed)
+		})
+	}
+}
