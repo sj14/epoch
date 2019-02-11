@@ -119,6 +119,9 @@ func GuessUnit(timestamp int64, ref time.Time) TimeUnit {
 	}
 }
 
+// ErrParseFormatted is used when parsing the formatted string failed.
+var ErrParseFormatted = errors.New("failed to convert string to time")
+
 // ParseFormatted takes a human readable time string and returns Go's default time type.
 // Example input: "Mon, 02 Jan 2006 15:04:05 MST".
 func ParseFormatted(input string) (time.Time, error) {
@@ -212,5 +215,5 @@ func ParseFormatted(input string) (time.Time, error) {
 		return t, nil
 	}
 
-	return time.Time{}, errors.New("failed to convert string to time")
+	return time.Time{}, ErrParseFormatted
 }
