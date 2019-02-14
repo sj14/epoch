@@ -16,7 +16,6 @@ import (
 
 func main() {
 	var (
-		input      string
 		unitFlag   = flag.String("unit", "guess", "unit for timestamp output: s, ms, us, ns")
 		formatFlag = flag.String("format", "", "human readable output format, see readme for details")
 		utcFlag    = flag.Bool("utc", false, "use UTC instead of local zone")
@@ -24,22 +23,7 @@ func main() {
 	)
 	flag.Parse()
 
-	// read program input
-	if flag.NArg() == 0 { // from stdin/pipe
-		reader := bufio.NewReader(os.Stdin)
-		var err error
-		input, err = reader.ReadString('\n')
-		if err != nil {
-			log.Fatalln("failed to read input")
-		}
-		input = strings.TrimSpace(input)
-	} else { // from argument
-		if flag.NArg() > 1 {
-			log.Fatalln("takes at most one input")
-		}
-		input = flag.Arg(0)
-	}
-
+	input := readInput()
 	if input == "" {
 		input = time.Now().String()
 	}
@@ -53,6 +37,25 @@ func main() {
 
 	// output formatted time
 	outputFormatted(input, *unitFlag, *quieteFlag)
+}
+
+// read program input from stdin or argument
+func readInput() string {
+	// from stdin/pipe
+	if flag.NArg() == 0 {
+		reader := bufio.NewReader(os.Stdin)
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			log.Fatalln("failed to read input")
+		}
+		return strings.TrimSpace(input)
+	}
+
+	// from argument
+	if flag.NArg() > 1 {
+		log.Fatalln("takes at most one input")
+	}
+	return flag.Arg(0)
 }
 
 func outputFormatted(input, unitFlag string, quieteFlag bool) {
