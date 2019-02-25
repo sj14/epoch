@@ -17,7 +17,7 @@ const (
 	UnitSeconds TimeUnit = iota
 	// UnitMilliseconds represents milliseconds.
 	UnitMilliseconds
-	// UnitMicrosecond represents microseconds.
+	// UnitMicroseconds represents microseconds.
 	UnitMicroseconds
 	// UnitNanoseconds represents nanoseconds.
 	UnitNanoseconds
