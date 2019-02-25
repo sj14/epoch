@@ -29,6 +29,20 @@ The functionallity is implemented as a package and can be used in other programs
 go get -u github.com/sj14/epoch
 ```
 
+## Usage
+
+```text
+Usage of epoch:
+  -format string
+        human readable output format, see readme for details
+  -quiete
+        don't output guessed units
+  -unit string
+        unit for timestamp output: s, ms, us, ns (default "guess")
+  -utc
+        use UTC instead of local zone
+```
+
 ## Examples
 
 ### Timestamps to human readable format
