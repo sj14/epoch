@@ -9,12 +9,17 @@ import (
 	"time"
 )
 
+// TimeUnit represents a time unit.
 type TimeUnit byte
 
 const (
+	// UnitSeconds represents seconds.
 	UnitSeconds TimeUnit = iota
+	// UnitMilliseconds represents milliseconds.
 	UnitMilliseconds
+	// UnitMicrosecond represents microseconds.
 	UnitMicroseconds
+	// UnitNanoseconds represents nanoseconds.
 	UnitNanoseconds
 )
 
@@ -113,10 +118,9 @@ func GuessUnit(timestamp int64, ref time.Time) TimeUnit {
 		diffMicro <= diffNano {
 		// number of digits is closer to current microseconds timestamp
 		return UnitMicroseconds
-	} else {
-		// number of digits is closer to current nanoseconds timestamp
-		return UnitNanoseconds
 	}
+	// number of digits is closer to current nanoseconds timestamp
+	return UnitNanoseconds
 }
 
 // ErrParseFormatted is used when parsing the formatted string failed.
