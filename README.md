@@ -11,12 +11,14 @@ Furthermore, have you ever tried converting a time formatted string such as `"20
 
 ```text
 $ epoch "2019-01-25 21:51:38 +0100 CET"
+using seconds as unit
 1548449498
 ```
 
 ```text
 $ epoch 1548449498
-Fri Jan 25 21:51:38 CET 2019
+guessed unit: seconds
+2019-01-25 21:51:38 +0100 CET
 ```
 
 The functionallity is implemented as a package and can be used in other programs.
@@ -110,6 +112,7 @@ guessed unit nanoseconds
 
 ``` text
 $ epoch -- -15484495
+guessed unit: seconds
 1969-07-05 19:45:05 +0100 CET
 ```
 
@@ -117,6 +120,7 @@ $ epoch -- -15484495
 
 ``` text
 $ echo -15484495 | epoch
+guessed unit: seconds
 1969-07-05 19:45:05 +0100 CET
 ```
 
