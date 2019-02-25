@@ -1,6 +1,7 @@
 # epoch
 
 [![GoDoc](https://godoc.org/github.com/sj14/epoch/epoch?status.png)](https://godoc.org/github.com/sj14/epoch/epoch)
+[![Go Report Card](https://goreportcard.com/badge/github.com/sj14/epoch)](https://goreportcard.com/report/github.com/sj14/epoch)
 
 `epoch` converts unix timestamps to human readable formats and vice versa.
 
