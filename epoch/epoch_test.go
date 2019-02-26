@@ -139,7 +139,7 @@ func TestParseTimestamp(t *testing.T) {
 	}{
 		{
 			description: "empty",
-			expected:    expecedType{time: time.Unix(0, 0)},
+			expected:    expecedType{time: time.Date(1970, 1, 1, 0, 0, 0, 00000000, time.UTC)},
 		},
 		{
 			description: "wrong unit",
@@ -149,28 +149,28 @@ func TestParseTimestamp(t *testing.T) {
 		{
 			description: "seconds",
 			given:       givenType{timestamp: 1549741094, unit: UnitSeconds},
-			expected:    expecedType{time: time.Date(2019, 02, 9, 20, 38, 14, 00000000, time.Local)},
+			expected:    expecedType{time: time.Date(2019, 2, 9, 19, 38, 14, 00000000, time.UTC)},
 		},
 		{
 			description: "milliseconds",
 			given:       givenType{timestamp: 1549741094065, unit: UnitMilliseconds},
-			expected:    expecedType{time: time.Date(2019, 02, 9, 20, 38, 14, 65000000, time.Local)},
+			expected:    expecedType{time: time.Date(2019, 2, 9, 19, 38, 14, 65000000, time.UTC)},
 		},
 		{
 			description: "microseconds",
 			given:       givenType{timestamp: 1549741094065178, unit: UnitMicroseconds},
-			expected:    expecedType{time: time.Date(2019, 02, 9, 20, 38, 14, 65178000, time.Local)},
+			expected:    expecedType{time: time.Date(2019, 2, 9, 19, 38, 14, 65178000, time.UTC)},
 		},
 		{
 			description: "nanoseconds",
 			given:       givenType{timestamp: 1549741094065178000, unit: UnitNanoseconds},
-			expected:    expecedType{time: time.Date(2019, 02, 9, 20, 38, 14, 65178000, time.Local)},
+			expected:    expecedType{time: time.Date(2019, 2, 9, 19, 38, 14, 65178000, time.UTC)},
 		},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.description, func(t *testing.T) {
-			time, err := ParseTimestamp(tt.given.timestamp, tt.given.unit)
+			timestamp, err := ParseTimestamp(tt.given.timestamp, tt.given.unit)
 			if err != nil {
 				require.EqualError(t, tt.expected.err, err.Error(), err)
 				return
@@ -179,7 +179,7 @@ func TestParseTimestamp(t *testing.T) {
 				return
 			}
 
-			require.Equal(t, tt.expected.time, time)
+			require.Equal(t, tt.expected.time.UTC(), timestamp.UTC())
 		})
 	}
 }
