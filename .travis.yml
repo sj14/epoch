@@ -18,5 +18,4 @@ script:
   - go vet ./...
   - go test ./... -v -covermode=count -coverprofile=coverage.out
   - bash <(curl -s https://codecov.io/bash)
-  - "$GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken
-    $COVERALLS_TOKEN"
+  - "$GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN"
