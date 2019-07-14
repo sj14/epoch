@@ -1,0 +1,84 @@
+# This is an example goreleaser.yaml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+project_name: epoch
+
+before:
+  hooks:
+    - go mod download
+builds:
+- 
+  main: ./main.go
+  #binary: epoch
+  env:
+  - CGO_ENABLED=0
+  - GO111MODULE=on
+  goos:
+  - linux
+  - darwin
+  - freebsd
+  - openbsd
+  - netbsd
+  - solaris
+  # -plan9
+  - dragonfly
+  - windows
+  goarch:
+  - 386
+  - amd64
+  - arm
+  - arm64
+  # - ppc64
+  # - ppc64le
+  # - mips
+  # - mipsle
+  # - mips64
+  # - mips64le
+  goarm:
+    - 6
+    - 7
+
+archive:
+  wrap_in_directory: true
+  format_overrides:
+    - goos: windows
+      format: zip
+  files:
+  - LICENSE
+  - README.md
+
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ .Tag }}-next-{{.Commit}}"
+
+nfpm:
+  maintainer: Simon Jürgensmeyyer <simon.juergensmeyer@gmail.com>
+  homepage: https://github.com/sj14/epoch/
+  description: Easily convert epoch timestamps to human readable formats and vice versa.
+  license: MIT
+  formats:
+    - deb
+    - rpm
+
+brew:
+  # name: dbbench
+  # folder: homebrew-tap
+  github:
+    owner: sj14
+    name: homebrew-tap
+  description: Easily convert epoch timestamps to human readable formats and vice versa.
+
+release:
+  github:
+    owner: sj14
+    name: epoch
+  disable: false
+  draft: false
+  prerelease: false
+
+changelog:
+  filters:
+    exclude:
+      - typo
