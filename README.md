@@ -26,6 +26,22 @@ The functionallity is implemented as a package and can be used in other programs
 
 ## Installation
 
+### Precompiled Binaries
+
+Binaries are available for all major platforms. See the [releases](https://github.com/sj14/epoch/releases) page.
+
+### Homebrew
+
+Using the [Homebrew](https://brew.sh/) package manager for macOS:
+
+``` text
+brew install sj14/tap/epoch
+```
+
+### Manually
+
+It's also possible to install the current development snapshot with `go get`:
+
 ``` text
 go get -u github.com/sj14/epoch
 ```
