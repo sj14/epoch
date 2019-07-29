@@ -18,7 +18,7 @@ func main() {
 	var (
 		unitFlag   = flag.String("unit", "guess", "unit for timestamp output: s, ms, us, ns")
 		formatFlag = flag.String("format", "", "human readable output format, see readme for details")
-		utcFlag    = flag.Bool("utc", false, "use UTC instead of local zone")
+		utcFlag    = flag.Bool("utc", false, "use UTC instead of local time zone")
 		quieteFlag = flag.Bool("quiete", false, "don't output guessed units")
 	)
 	flag.Parse()
@@ -26,6 +26,32 @@ func main() {
 	input := readInput()
 	if input == "" {
 		input = time.Now().String()
+	}
+
+	// use suffix of input as unit, e.g.
+	// "1234567890s" -> unit: "s"; input: "1234567890"
+	//
+	// keep "s" as last element in slice, otherwise,
+	// it will match all other units as they end with an "s", too.
+	for _, unit := range []string{"ns", "us", "ms", "s"} {
+		if !strings.HasSuffix(input, unit) {
+			continue
+		}
+
+		// check if remaining input is an integer, if not
+		// it might be a time zone ending with 'unit'.
+		// (I'm currently not aware of any, but let's be sure)
+		inputTrim := strings.TrimSuffix(input, unit)
+		if _, err := strconv.ParseInt(inputTrim, 10, 64); err != nil {
+			continue
+		}
+
+		if *unitFlag != "guess" && *unitFlag != unit {
+			log.Fatalf("mismatch between unit flag (%v) and input unit (%v)\n", *unitFlag, unit)
+		}
+		*unitFlag = unit
+		input = inputTrim
+		break
 	}
 
 	// if the input can be parsed as an int, we assume it's an epoch timestamp
