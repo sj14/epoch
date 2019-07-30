@@ -66,10 +66,19 @@ Usage of epoch:
 
 #### conversion based on given unit
 
+Use the `-unit` flag or append the unit at a suffix to the input.
+
 ``` text
 $ epoch -unit s 1548449513
 Fri Jan 25 21:51:53 CET 2019
 ```
+
+``` text
+$ epoch 1548449513s
+Fri Jan 25 21:51:53 CET 2019
+```
+
+---
 
 ``` text
 $ epoch -unit ms 1548449513
@@ -77,12 +86,31 @@ Sun Jan 18 23:07:29 CET 1970
 ```
 
 ``` text
+$ epoch 1548449513ms
+Sun Jan 18 23:07:29 CET 1970
+```
+
+---
+
+``` text
 $ epoch -unit us 1548449513
 Thu Jan  1 01:25:48 CET 1970
 ```
 
 ``` text
+$ epoch 1548449513us
+Thu Jan  1 01:25:48 CET 1970
+```
+
+---
+
+``` text
 $ epoch -unit ns 1548449513
+Thu Jan  1 01:00:01 CET 1970
+```
+
+``` text
+$ epoch 1548449513ns
 Thu Jan  1 01:00:01 CET 1970
 ```
 
