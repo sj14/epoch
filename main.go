@@ -19,7 +19,7 @@ func main() {
 		unitFlag   = flag.String("unit", "guess", "unit for timestamp output: s, ms, us, ns")
 		formatFlag = flag.String("format", "", "human readable output format, see readme for details")
 		utcFlag    = flag.Bool("utc", false, "use UTC instead of local time zone")
-		quieteFlag = flag.Bool("quiete", false, "don't output guessed units")
+		quieteFlag = flag.Bool("quiet", false, "don't output guessed units")
 	)
 	flag.Parse()
 

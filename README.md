@@ -52,7 +52,7 @@ go get -u github.com/sj14/epoch
 Usage of epoch:
   -format string
         human readable output format, see readme for details
-  -quiete
+  -quiet
         don't output guessed units
   -unit string
         unit for timestamp output: s, ms, us, ns (default "guess")
