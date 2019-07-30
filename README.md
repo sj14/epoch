@@ -54,7 +54,7 @@ Usage of epoch:
   -quiet
         don't output guessed units
   -unit string
-        unit for timestamp output: s, ms, us, ns (default "guess")
+        unit for timestamps: s, ms, us, ns (default "guess")
   -utc
         use UTC instead of local zone
 ```

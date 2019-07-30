@@ -16,10 +16,10 @@ import (
 
 func main() {
 	var (
-		unitFlag   = flag.String("unit", "guess", "unit for timestamp output: s, ms, us, ns")
+		unitFlag   = flag.String("unit", "guess", "unit for timestamps: s, ms, us, ns")
 		formatFlag = flag.String("format", "", "human readable output format, see readme for details")
 		utcFlag    = flag.Bool("utc", false, "use UTC instead of local time zone")
-		quieteFlag = flag.Bool("quiet", false, "don't output guessed units")
+		quietFlag  = flag.Bool("quiet", false, "don't output guessed units")
 	)
 	flag.Parse()
 
@@ -56,13 +56,13 @@ func main() {
 
 	// if the input can be parsed as an int, we assume it's an epoch timestamp
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
-		t := outputTimestamp(*unitFlag, i, *quieteFlag)
+		t := outputTimestamp(*unitFlag, i, *quietFlag)
 		printFormatted(t, *formatFlag, *utcFlag)
 		return
 	}
 
 	// output formatted time
-	outputFormatted(input, *unitFlag, *quieteFlag)
+	outputFormatted(input, *unitFlag, *quietFlag)
 }
 
 // read program input from stdin or argument
