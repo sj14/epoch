@@ -7,7 +7,7 @@
 `epoch` converts unix timestamps to human readable formats and vice versa.
 
 **Why?**  
-To convert timestamps to dates, you have to run different commands for Linux and macOS: `date -d @1267619929` vs `date -r 1267619929`, and what about handling nanosecond timestamps?. Furthermore, have you ever tried converting a time formatted string such as `"2019-01-25 21:51:38 +0100 CET"` to a timestamp? Of course, you can do all this somehow, but all ways I've found so far were too cumbersome. This tool tries to solve all this with ease:
+To convert timestamps to dates, you have to run different commands for Linux and macOS: `date -d @1267619929` vs `date -r 1267619929`, and what about handling nanosecond timestamps? Furthermore, have you ever tried converting a time formatted string such as `"2019-01-25 21:51:38 +0100 CET"` to a timestamp? Of course, you can do all this somehow, but all ways I've found so far were too cumbersome. This tool tries to solve all this with ease:
 
 ```text
 $ epoch "2019-01-25 21:51:38 +0100 CET"
