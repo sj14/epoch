@@ -7,8 +7,7 @@
 `epoch` converts unix timestamps to human readable formats and vice versa.
 
 **Why?**  
-To convert timestamps to dates, you have to run different commands for Linux and macOS: `date -d @1267619929` vs `date -r 1267619929`, and what about handling nanosecond timestamps? Seriously, I don't know how to do this with `date`.  
-Furthermore, have you ever tried converting a time formatted string such as `"2019-01-25 21:51:38 +0100 CET"` to a timestamp? Of course, you can do this somehow, but all ways I've found so far were too cumbersome. This tool tries to solve all this with ease:
+To convert timestamps to dates, you have to run different commands for Linux and macOS: `date -d @1267619929` vs `date -r 1267619929`, and what about handling nanosecond timestamps? Furthermore, have you ever tried converting a time formatted string such as `"2019-01-25 21:51:38 +0100 CET"` to a timestamp? Of course, you can do all this somehow, but all ways I've found so far were too cumbersome. This tool tries to solve all this with ease:
 
 ```text
 $ epoch "2019-01-25 21:51:38 +0100 CET"
@@ -52,10 +51,10 @@ go get -u github.com/sj14/epoch
 Usage of epoch:
   -format string
         human readable output format, see readme for details
-  -quiete
+  -quiet
         don't output guessed units
   -unit string
-        unit for timestamp output: s, ms, us, ns (default "guess")
+        unit for timestamps: s, ms, us, ns (default "guess")
   -utc
         use UTC instead of local zone
 ```
@@ -66,10 +65,19 @@ Usage of epoch:
 
 #### conversion based on given unit
 
+Use the `-unit` flag or append the unit at a suffix to the input.
+
 ``` text
 $ epoch -unit s 1548449513
 Fri Jan 25 21:51:53 CET 2019
 ```
+
+``` text
+$ epoch 1548449513s
+Fri Jan 25 21:51:53 CET 2019
+```
+
+---
 
 ``` text
 $ epoch -unit ms 1548449513
@@ -77,12 +85,31 @@ Sun Jan 18 23:07:29 CET 1970
 ```
 
 ``` text
+$ epoch 1548449513ms
+Sun Jan 18 23:07:29 CET 1970
+```
+
+---
+
+``` text
 $ epoch -unit us 1548449513
 Thu Jan  1 01:25:48 CET 1970
 ```
 
 ``` text
+$ epoch 1548449513us
+Thu Jan  1 01:25:48 CET 1970
+```
+
+---
+
+``` text
 $ epoch -unit ns 1548449513
+Thu Jan  1 01:00:01 CET 1970
+```
+
+``` text
+$ epoch 1548449513ns
 Thu Jan  1 01:00:01 CET 1970
 ```
 
