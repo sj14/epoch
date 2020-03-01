@@ -72,7 +72,10 @@ func readInput() string {
 
 		// check if it's piped or from empty stdin
 		// https://stackoverflow.com/a/26567513
-		stat, _ := os.Stdin.Stat()
+		stat, err := os.Stdin.Stat()
+		if err != nil {
+			log.Fatalf("failed to get stdin stats: %v\n", err)
+		}
 		if (stat.Mode() & os.ModeCharDevice) != 0 {
 			return ""
 		}
