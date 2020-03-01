@@ -69,10 +69,19 @@ func main() {
 func readInput() string {
 	// from stdin/pipe
 	if flag.NArg() == 0 {
+
+		// check if it's piped or from empty stdin
+		// https://stackoverflow.com/a/26567513
+		stat, _ := os.Stdin.Stat()
+		if (stat.Mode() & os.ModeCharDevice) != 0 {
+			return ""
+		}
+
+		// read the input from the pipe
 		reader := bufio.NewReader(os.Stdin)
 		input, err := reader.ReadString('\n')
 		if err != nil {
-			log.Fatalln("failed to read input")
+			log.Fatalf("failed to read input: %v\n", err)
 		}
 		return strings.TrimSpace(input)
 	}
