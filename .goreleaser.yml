@@ -36,14 +36,14 @@ builds:
       - 6
       - 7
 
-archive:
-  wrap_in_directory: true
-  format_overrides:
-    - goos: windows
-      format: zip
-  files:
-    - LICENSE
-    - README.md
+archives:
+  - wrap_in_directory: true
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
 
 checksum:
   name_template: "checksums.txt"
@@ -51,22 +51,22 @@ checksum:
 snapshot:
   name_template: "{{ .Tag }}-next-{{.Commit}}"
 
-nfpm:
-  maintainer: Simon Jürgensmeyyer <simon.juergensmeyer@gmail.com>
-  homepage: https://github.com/sj14/epoch/
-  description: Easily convert epoch timestamps to human readable formats and vice versa.
-  license: MIT
-  formats:
-    - deb
-    - rpm
+nfpms:
+  - maintainer: Simon Jürgensmeyyer <simon.juergensmeyer@gmail.com>
+    homepage: https://github.com/sj14/epoch/
+    description: Easily convert epoch timestamps to human readable formats and vice versa.
+    license: MIT
+    formats:
+      - deb
+      - rpm
 
 brews:
-  # name: dbbench
-  # folder: homebrew-tap
-  github:
-    owner: sj14
-    name: homebrew-tap
-  description: Easily convert epoch timestamps to human readable formats and vice versa.
+  - # name: dbbench
+    # folder: homebrew-tap
+    github:
+      owner: sj14
+      name: homebrew-tap
+    description: Easily convert epoch timestamps to human readable formats and vice versa.
 
 release:
   github:
