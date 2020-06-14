@@ -18,13 +18,17 @@ func main() {
 	var (
 		unitFlag   = flag.String("unit", "guess", "unit for timestamps: s, ms, us, ns")
 		formatFlag = flag.String("format", "", "human readable output format, see readme for details")
-		utcFlag    = flag.Bool("utc", false, "use UTC instead of local time zone")
+		tzFlag     = flag.String("tz", "Local", "the timezone to use, e.g. 'Local', 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York'")
 		quietFlag  = flag.Bool("quiet", false, "don't output guessed units")
 	)
 	flag.Parse()
 
 	input := readInput()
+
 	if input == "" {
+		if *tzFlag != "Local" {
+			log.Fatalln("can't use empty input with specific timezone")
+		}
 		input = time.Now().String()
 	}
 
@@ -57,11 +61,23 @@ func main() {
 	// if the input can be parsed as an int, we assume it's an epoch timestamp
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
 		t := outputTimestamp(*unitFlag, i, *quietFlag)
-		printFormatted(t, *formatFlag, *utcFlag)
+		tz := *tzFlag
+
+		if strings.ToLower(tz) == "local" {
+			tz = "Local" // capital is important
+		}
+
+		loc, err := time.LoadLocation(tz)
+		if err != nil {
+			log.Fatalf("failed loading timezone '%v': %v\n", tz, err)
+		}
+
+		t = t.In(loc)
+		printFormatted(t, *formatFlag)
 		return
 	}
 
-	// output formatted time
+	// likely not an epoch timestamp, output formatted time
 	outputFormatted(input, *unitFlag, *quietFlag)
 }
 
@@ -146,11 +162,7 @@ func outputTimestamp(unitFlag string, i int64, quieteFlag bool) time.Time {
 	return t
 }
 
-func printFormatted(t time.Time, format string, utc bool) {
-	if utc {
-		t = t.In(time.UTC)
-	}
-
+func printFormatted(t time.Time, format string) {
 	format = strings.ToLower(format)
 
 	switch format {

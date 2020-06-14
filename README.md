@@ -53,10 +53,10 @@ Usage of epoch:
         human readable output format, see readme for details
   -quiet
         don't output guessed units
+  -tz string
+        the timezone to use, e.g. 'Local', 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York' (default "Local")
   -unit string
         unit for timestamps: s, ms, us, ns (default "guess")
-  -utc
-        use UTC instead of local zone
 ```
 
 ## Examples
