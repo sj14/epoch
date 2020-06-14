@@ -27,7 +27,7 @@ func main() {
 
 	if input == "" {
 		if *tzFlag != "Local" {
-			log.Fatalln("can't use empty input with specific timezone")
+			log.Fatalln("can't use empty input with specific timezone (omit -tz flag)")
 		}
 		input = time.Now().String()
 	}
@@ -77,7 +77,10 @@ func main() {
 		return
 	}
 
-	// likely not an epoch timestamp, output formatted time
+	// likely not an epoch timestamp as input, output formatted input time to timestamp
+	if *formatFlag != "" {
+		log.Fatalln("can't use specific format when converting to timestamp (omit -format flag)")
+	}
 	outputFormatted(input, *unitFlag, *quietFlag)
 }
 
