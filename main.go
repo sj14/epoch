@@ -22,12 +22,18 @@ func main() {
 		quietFlag  = flag.Bool("quiet", false, "don't output guessed units")
 	)
 	flag.Parse()
-	input := readInput()
-	result := run(input, time.Now().String(), *unitFlag, *formatFlag, *tzFlag, *quietFlag)
+	input, err := readInput()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	result, err := run(input, time.Now().String(), *unitFlag, *formatFlag, *tzFlag, *quietFlag)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	fmt.Println(result)
 }
 
-func run(input, now, unitFlag, formatFlag, tzFlag string, quietFlag bool) string {
+func run(input, now, unitFlag, formatFlag, tzFlag string, quietFlag bool) (string, error) {
 	if input == "" {
 		input = now
 	}
@@ -51,7 +57,7 @@ func run(input, now, unitFlag, formatFlag, tzFlag string, quietFlag bool) string
 		}
 
 		if unitFlag != "guess" && unitFlag != unit {
-			log.Fatalf("mismatch between unit flag (%v) and input unit (%v)\n", unitFlag, unit)
+			return "", fmt.Errorf("mismatch between unit flag (%v) and input unit (%v)", unitFlag, unit)
 		}
 		unitFlag = unit
 		input = inputTrim
@@ -63,31 +69,35 @@ func run(input, now, unitFlag, formatFlag, tzFlag string, quietFlag bool) string
 		t := parseTimestamp(unitFlag, i, quietFlag)
 		loc := location(tzFlag)
 		t = t.In(loc)
-		return formattedString(t, formatFlag, "")
+		return formattedString(t, formatFlag, ""), nil
 	}
 
-	// Likely not an epoch timestamp as input. But a timezone was specified. Convert formatted input to another timezone.
-	if tzFlag != "" {
+	// Likely not an epoch timestamp as input. But a timezone and/or format was specified. Convert formatted input to another timezone and/or format.
+	if tzFlag != "" || formatFlag != "" {
+		if unitFlag != "guess" {
+			return "", fmt.Errorf("can't use unit flag together with timezone or format flag on a formatted string (omit -unit flag)")
+		}
+
 		t, format, err := epoch.ParseFormatted(input)
 		if err != nil {
-			log.Fatalf("failed to convert input: %v", err)
+			return "", fmt.Errorf("failed to convert input: %v", err)
 		}
 
 		loc := location(tzFlag)
 		t = t.In(loc)
-		return formattedString(t, formatFlag, format)
+		return formattedString(t, formatFlag, format), nil
 	}
 
 	// Likely not an epoch timestamp as input, output formatted input time to timestamp.
 	if formatFlag != "" {
-		log.Fatalln("can't use specific format when converting to timestamp (omit -format flag)")
+		return "", fmt.Errorf("can't use specific format when converting to timestamp (omit -format flag)")
 	}
 
-	return strconv.FormatInt(timestamp(input, unitFlag, quietFlag), 10)
+	return strconv.FormatInt(timestamp(input, unitFlag, quietFlag), 10), nil
 }
 
 // read program input from stdin or argument
-func readInput() string {
+func readInput() (string, error) {
 	// from stdin/pipe
 	if flag.NArg() == 0 {
 
@@ -95,26 +105,26 @@ func readInput() string {
 		// https://stackoverflow.com/a/26567513
 		stat, err := os.Stdin.Stat()
 		if err != nil {
-			log.Fatalf("failed to get stdin stats: %v\n", err)
+			return "", fmt.Errorf("failed to get stdin stats: %v", err)
 		}
 		if (stat.Mode() & os.ModeCharDevice) != 0 {
-			return ""
+			return "", nil
 		}
 
 		// read the input from the pipe
 		reader := bufio.NewReader(os.Stdin)
 		input, err := reader.ReadString('\n')
 		if err != nil {
-			log.Fatalf("failed to read input: %v\n", err)
+			return "", fmt.Errorf("failed to read input: %v", err)
 		}
-		return strings.TrimSpace(input)
+		return strings.TrimSpace(input), nil
 	}
 
 	// from argument
 	if flag.NArg() > 1 {
-		log.Fatalln("takes at most one input")
+		return "", fmt.Errorf("takes at most one input")
 	}
-	return flag.Arg(0)
+	return flag.Arg(0), nil
 }
 
 func location(tz string) *time.Location {
