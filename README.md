@@ -9,16 +9,31 @@
 **Why?**  
 To convert timestamps to dates, you have to run different commands for Linux and macOS: `date -d @1267619929` vs `date -r 1267619929`, and what about handling nanosecond timestamps? Furthermore, have you ever tried converting a time formatted string such as `"2019-01-25 21:51:38 +0100 CET"` to a timestamp? Of course, you can do all this somehow, but all ways I've found so far were too cumbersome. This tool tries to solve all this with ease:
 
-```text
+```bash
 $ epoch "2019-01-25 21:51:38 +0100 CET"
 using seconds as unit
 1548449498
 ```
 
-```text
+```bash
 $ epoch 1548449498
 guessed unit: seconds
 2019-01-25 21:51:38 +0100 CET
+```
+
+Convert between timezones:
+
+```bash
+$ epoch -tz "Europe/Berlin" "Sat Jul 18 15:46:45 UTC 2020"
+Sat Jul 18 17:46:45 CEST 2020
+```
+
+Timestamp to formatted string of specific timezone:
+
+```bash
+$ epoch -tz "America/New_York" 1595088886
+guessed unit: seconds
+2020-07-18 12:14:46 -0400 EDT
 ```
 
 The functionallity is implemented as a package and can be used in other programs.
@@ -33,7 +48,7 @@ Binaries are available for all major platforms. See the [releases](https://githu
 
 Using the [Homebrew](https://brew.sh/) package manager for macOS:
 
-``` text
+```bash
 brew install sj14/tap/epoch
 ```
 
@@ -41,7 +56,7 @@ brew install sj14/tap/epoch
 
 It's also possible to install the current development snapshot with `go get`:
 
-``` text
+```bash
 go get -u github.com/sj14/epoch
 ```
 
@@ -67,65 +82,65 @@ Usage of epoch:
 
 Use the `-unit` flag or append the unit at a suffix to the input.
 
-``` text
+```bash
 $ epoch -unit s 1548449513
 Fri Jan 25 21:51:53 CET 2019
 ```
 
-``` text
+```bash
 $ epoch 1548449513s
 Fri Jan 25 21:51:53 CET 2019
 ```
 
 ---
 
-``` text
+```bash
 $ epoch -unit ms 1548449513
 Sun Jan 18 23:07:29 CET 1970
 ```
 
-``` text
+```bash
 $ epoch 1548449513ms
 Sun Jan 18 23:07:29 CET 1970
 ```
 
 ---
 
-``` text
+```bash
 $ epoch -unit us 1548449513
 Thu Jan  1 01:25:48 CET 1970
 ```
 
-``` text
+```bash
 $ epoch 1548449513us
 Thu Jan  1 01:25:48 CET 1970
 ```
 
 ---
 
-``` text
+```bash
 $ epoch -unit ns 1548449513
 Thu Jan  1 01:00:01 CET 1970
 ```
 
-``` text
+```bash
 $ epoch 1548449513ns
 Thu Jan  1 01:00:01 CET 1970
 ```
 
 #### set the output format
 
-``` text
+```bash
 $ epoch -unit ms -format rfc850 1548449513
 Sunday, 18-Jan-70 23:07:29 CET
 ```
 
-``` text
+```bash
 $ epoch -unit ms -format ruby 1548449513
 Sun Jan 18 23:07:29 +0100 1970
 ```
 
-``` text
+```bash
 $ epoch -unit ms -format ansic 1548449513
 Sun Jan 18 23:07:29 1970
 ```
@@ -136,7 +151,7 @@ Guess the unit. Internally, the guess is done by comparing the number of digits 
 
 seconds:
 
-``` text
+```bash
 $ epoch 1548449513
 guessed unit seconds
 2019-01-25 21:51:53 +0100 CET
@@ -144,7 +159,7 @@ guessed unit seconds
 
 milliseconds:
 
-``` text
+```bash
 $ epoch 1548449513940
 guessed unit milliseconds
 2019-01-25 21:51:53 +0100 CET
@@ -152,7 +167,7 @@ guessed unit milliseconds
 
 microseconds:
 
-``` text
+```bash
 $ epoch 1548449513940562
 guessed unit microseconds
 2019-01-25 21:51:53.940562 +0100 CET
@@ -160,7 +175,7 @@ guessed unit microseconds
 
 nanoseconds:
 
-``` text
+```bash
 $ epoch 1548449513940562000
 guessed unit nanoseconds
 2019-01-25 21:51:53.940562 +0100 CET
@@ -168,7 +183,7 @@ guessed unit nanoseconds
 
 #### negative timestamp
 
-``` text
+```bash
 $ epoch -- -15484495
 guessed unit: seconds
 1969-07-05 19:45:05 +0100 CET
@@ -176,7 +191,7 @@ guessed unit: seconds
 
 #### using the pipe
 
-``` text
+```bash
 $ echo -15484495 | epoch
 guessed unit: seconds
 1969-07-05 19:45:05 +0100 CET
@@ -186,28 +201,28 @@ guessed unit: seconds
 
 seconds (default when no `unit` flag given):
 
-``` text
+```bash
 $ epoch -unit s "2019-01-25 21:51:38.272173 +0100 CET"
 1548449498
 ```
 
 milliseconds:
 
-```text
+```bash
 $ epoch -unit ms "2019-01-25 21:51:38.272173 +0100 CET"
 1548449498272
 ```
 
 microseconds:
 
-```text
+```bash
 $ epoch -unit us "2019-01-25 21:51:38.272173 +0100 CET"
 1548449498272173
 ```
 
 nanoseconds:
 
-```text
+```bash
 $ epoch -unit ns "2019-01-25 21:51:38.272173 +0100 CET"
 1548449498272173000
 ```
@@ -216,7 +231,7 @@ $ epoch -unit ns "2019-01-25 21:51:38.272173 +0100 CET"
 
 All current Go formats as of 2019-01-26 (https://golang.org/pkg/time/#pkg-constants):
 
-``` go
+```go
 ANSIC       = "Mon Jan _2 15:04:05 2006"
 UnixDate    = "Mon Jan _2 15:04:05 MST 2006"
 RubyDate    = "Mon Jan 02 15:04:05 -0700 2006"
