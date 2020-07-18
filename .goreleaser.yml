@@ -63,7 +63,7 @@ nfpms:
 brews:
   - # name: dbbench
     # folder: homebrew-tap
-    github:
+    tap:
       owner: sj14
       name: homebrew-tap
     description: Easily convert epoch timestamps to human readable formats and vice versa.
