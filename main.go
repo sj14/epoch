@@ -18,18 +18,18 @@ func main() {
 	var (
 		unitFlag   = flag.String("unit", "guess", "unit for timestamps: s, ms, us, ns")
 		formatFlag = flag.String("format", "", "human readable output format, see readme for details")
-		tzFlag     = flag.String("tz", "Local", "the timezone to use, e.g. 'Local', 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York'")
+		tzFlag     = flag.String("tz", "", `the timezone to use, e.g. 'Local', 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York' (default "Local")`)
 		quietFlag  = flag.Bool("quiet", false, "don't output guessed units")
 	)
 	flag.Parse()
-
 	input := readInput()
+	result := run(input, time.Now().String(), *unitFlag, *formatFlag, *tzFlag, *quietFlag)
+	fmt.Println(result)
+}
 
+func run(input, now, unitFlag, formatFlag, tzFlag string, quietFlag bool) string {
 	if input == "" {
-		if *tzFlag != "Local" {
-			log.Fatalln("can't use empty input with specific timezone (omit -tz flag)")
-		}
-		input = time.Now().String()
+		input = now
 	}
 
 	// use suffix of input as unit, e.g.
@@ -50,38 +50,40 @@ func main() {
 			continue
 		}
 
-		if *unitFlag != "guess" && *unitFlag != unit {
-			log.Fatalf("mismatch between unit flag (%v) and input unit (%v)\n", *unitFlag, unit)
+		if unitFlag != "guess" && unitFlag != unit {
+			log.Fatalf("mismatch between unit flag (%v) and input unit (%v)\n", unitFlag, unit)
 		}
-		*unitFlag = unit
+		unitFlag = unit
 		input = inputTrim
 		break
 	}
 
-	// if the input can be parsed as an int, we assume it's an epoch timestamp
+	// If the input can be parsed as an int, we assume it's an epoch timestamp. Convert to formatted string.
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
-		t := outputTimestamp(*unitFlag, i, *quietFlag)
-		tz := *tzFlag
-
-		if strings.ToLower(tz) == "local" {
-			tz = "Local" // capital is important
-		}
-
-		loc, err := time.LoadLocation(tz)
-		if err != nil {
-			log.Fatalf("failed loading timezone '%v': %v\n", tz, err)
-		}
-
+		t := parseTimestamp(unitFlag, i, quietFlag)
+		loc := location(tzFlag)
 		t = t.In(loc)
-		printFormatted(t, *formatFlag)
-		return
+		return formattedString(t, formatFlag, "")
 	}
 
-	// likely not an epoch timestamp as input, output formatted input time to timestamp
-	if *formatFlag != "" {
+	// Likely not an epoch timestamp as input. But a timezone was specified. Convert formatted input to another timezone.
+	if tzFlag != "" {
+		t, format, err := epoch.ParseFormatted(input)
+		if err != nil {
+			log.Fatalf("failed to convert input: %v", err)
+		}
+
+		loc := location(tzFlag)
+		t = t.In(loc)
+		return formattedString(t, formatFlag, format)
+	}
+
+	// Likely not an epoch timestamp as input, output formatted input time to timestamp.
+	if formatFlag != "" {
 		log.Fatalln("can't use specific format when converting to timestamp (omit -format flag)")
 	}
-	outputFormatted(input, *unitFlag, *quietFlag)
+
+	return strconv.FormatInt(timestamp(input, unitFlag, quietFlag), 10)
 }
 
 // read program input from stdin or argument
@@ -115,9 +117,21 @@ func readInput() string {
 	return flag.Arg(0)
 }
 
-func outputFormatted(input, unitFlag string, quieteFlag bool) {
+func location(tz string) *time.Location {
+	if strings.ToLower(tz) == "local" || tz == "" {
+		tz = "Local" // capital is important
+	}
+
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		log.Fatalf("failed loading timezone '%v': %v\n", tz, err)
+	}
+	return loc
+}
+
+func timestamp(input, unitFlag string, quieteFlag bool) int64 {
 	// convert fromatted string to time type
-	t, err := epoch.ParseFormatted(input)
+	t, _, err := epoch.ParseFormatted(input)
 	if err != nil {
 		log.Fatalf("failed to convert input: %v", err)
 	}
@@ -136,10 +150,10 @@ func outputFormatted(input, unitFlag string, quieteFlag bool) {
 	if err != nil {
 		log.Fatalf("failed to convert timestamp: %v", err)
 	}
-	fmt.Println(timestamp)
+	return timestamp
 }
 
-func outputTimestamp(unitFlag string, i int64, quieteFlag bool) time.Time {
+func parseTimestamp(unitFlag string, i int64, quieteFlag bool) time.Time {
 	unit, err := epoch.ParseUnit(unitFlag)
 	if err != nil {
 		unit = epoch.GuessUnit(i, time.Now())
@@ -165,46 +179,49 @@ func outputTimestamp(unitFlag string, i int64, quieteFlag bool) time.Time {
 	return t
 }
 
-func printFormatted(t time.Time, format string) {
+func formattedString(t time.Time, format, defaultFormat string) string {
 	format = strings.ToLower(format)
 
 	switch format {
 	case "":
-		fmt.Println(t)
+		if defaultFormat != "" {
+			return t.Format(defaultFormat)
+		}
+		return t.String()
 	case "unix":
-		fmt.Println(t.Format(time.UnixDate))
+		return t.Format(time.UnixDate)
 	case "ruby":
-		fmt.Println(t.Format(time.RubyDate))
+		return t.Format(time.RubyDate)
 	case "ansic":
-		fmt.Println(t.Format(time.ANSIC))
+		return t.Format(time.ANSIC)
 	case "rfc822":
-		fmt.Println(t.Format(time.RFC822))
+		return t.Format(time.RFC822)
 	case "rfc822z":
-		fmt.Println(t.Format(time.RFC822Z))
+		return t.Format(time.RFC822Z)
 	case "rfc850":
-		fmt.Println(t.Format(time.RFC850))
+		return t.Format(time.RFC850)
 	case "rfc1123":
-		fmt.Println(t.Format(time.RFC1123))
+		return t.Format(time.RFC1123)
 	case "rfc1123z":
-		fmt.Println(t.Format(time.RFC1123Z))
+		return t.Format(time.RFC1123Z)
 	case "rfc3339":
-		fmt.Println(t.Format(time.RFC3339))
+		return t.Format(time.RFC3339)
 	case "rfc3339nano":
-		fmt.Println(t.Format(time.RFC3339Nano))
+		return t.Format(time.RFC3339Nano)
 	case "kitchen":
-		fmt.Println(t.Format(time.Kitchen))
+		return t.Format(time.Kitchen)
 	case "stamp":
-		fmt.Println(t.Format(time.Stamp))
+		return t.Format(time.Stamp)
 	case "stampms":
-		fmt.Println(t.Format(time.StampMilli))
+		return t.Format(time.StampMilli)
 	case "stampus":
-		fmt.Println(t.Format(time.StampMicro))
+		return t.Format(time.StampMicro)
 	case "stampns":
-		fmt.Println(t.Format(time.StampNano))
+		return t.Format(time.StampNano)
 	case "http":
-		fmt.Println(t.Format(http.TimeFormat))
+		return t.Format(http.TimeFormat)
 	default:
 		fmt.Fprintf(os.Stderr, "failed to parse format '%v'\n", format)
-		fmt.Println(t)
+		return t.String()
 	}
 }

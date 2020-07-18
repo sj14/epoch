@@ -126,98 +126,100 @@ func GuessUnit(timestamp int64, ref time.Time) TimeUnit {
 // ErrParseFormatted is used when parsing the formatted string failed.
 var ErrParseFormatted = errors.New("failed to convert string to time")
 
-// ParseFormatted takes a human readable time string and returns Go's default time type.
+// ParseFormatted takes a human readable time string and returns Go's default time type and the layout it recognized.
 // Example input: "Mon, 02 Jan 2006 15:04:05 MST".
-func ParseFormatted(input string) (time.Time, error) {
+func ParseFormatted(input string) (time.Time, string, error) {
 	// "Mon, 02 Jan 2006 15:04:05 MST"
 	if t, err := time.Parse(time.RFC1123, input); err == nil {
-		return t, nil
+		return t, time.RFC1123, nil
 	}
 
 	// "Mon, 02 Jan 2006 15:04:05 -0700"
 	if t, err := time.Parse(time.RFC1123Z, input); err == nil {
-		return t, nil
+		return t, time.RFC1123Z, nil
 	}
 
 	// "2006-01-02T15:04:05Z07:00"
 	if t, err := time.Parse(time.RFC3339, input); err == nil {
-		return t, nil
+		return t, time.RFC3339, nil
 	}
 
 	// "2006-01-02T15:04:05.999999999Z07:00"
 	if t, err := time.Parse(time.RFC3339Nano, input); err == nil {
-		return t, nil
+		return t, time.RFC3339Nano, nil
 	}
 
 	// "02 Jan 06 15:04 MST"
 	if t, err := time.Parse(time.RFC822, input); err == nil {
-		return t, nil
+		return t, time.RFC822, nil
 	}
 
 	// "02 Jan 06 15:04 -0700"
 	if t, err := time.Parse(time.RFC822Z, input); err == nil {
-		return t, nil
+		return t, time.RFC822Z, nil
 	}
 
 	// "Monday, 02-Jan-06 15:04:05 MST"
 	if t, err := time.Parse(time.RFC850, input); err == nil {
-		return t, nil
+		return t, time.RFC850, nil
 	}
 
 	// "Mon Jan _2 15:04:05 2006"
 	if t, err := time.Parse(time.ANSIC, input); err == nil {
-		return t, nil
+		return t, time.ANSIC, nil
 	}
 
 	// "Mon Jan _2 15:04:05 MST 2006"
 	if t, err := time.Parse(time.UnixDate, input); err == nil {
-		return t, nil
+		return t, time.UnixDate, nil
 	}
 
 	// "Mon Jan 02 15:04:05 -0700 2006"
 	if t, err := time.Parse(time.RubyDate, input); err == nil {
-		return t, nil
+		return t, time.RubyDate, nil
 	}
 
 	// "3:04PM"
 	if t, err := time.Parse(time.Kitchen, input); err == nil {
-		return t, nil
+		return t, time.Kitchen, nil
 	}
 
 	// "Jan _2 15:04:05"
 	if t, err := time.Parse(time.Stamp, input); err == nil {
-		return t, nil
+		return t, time.Stamp, nil
 	}
 
 	// "Jan _2 15:04:05.000"
 	if t, err := time.Parse(time.StampMilli, input); err == nil {
-		return t, nil
+		return t, time.StampMilli, nil
 	}
 
 	// "Jan _2 15:04:05.000000"
 	if t, err := time.Parse(time.StampMicro, input); err == nil {
-		return t, nil
+		return t, time.StampMicro, nil
 	}
 
 	// "Jan _2 15:04:05.000000000"
 	if t, err := time.Parse(time.StampNano, input); err == nil {
-		return t, nil
+		return t, time.StampNano, nil
 	}
 
 	// "Mon, 02 Jan 2006 15:04:05 GMT"
 	if t, err := time.Parse(http.TimeFormat, input); err == nil {
-		return t, nil
+		return t, http.TimeFormat, nil
 	}
 
 	// handle Go's default time.Now() format (e.g. 2019-01-26 09:43:57.377055 +0100 CET m=+0.644739467)
-	if t, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", strings.Split(input, " m=")[0]); err == nil {
-		return t, nil
+	goTime := "2006-01-02 15:04:05.999999999 -0700 MST"
+	if t, err := time.Parse(goTime, strings.Split(input, " m=")[0]); err == nil {
+		return t, goTime, nil
 	}
 
 	// "2019-01-25 21:51:38"
-	if t, err := time.Parse("2006-01-02 15:04:05.999999999", input); err == nil {
-		return t, nil
+	simple := "2006-01-02 15:04:05.999999999"
+	if t, err := time.Parse(simple, input); err == nil {
+		return t, simple, nil
 	}
 
-	return time.Time{}, ErrParseFormatted
+	return time.Time{}, "", ErrParseFormatted
 }

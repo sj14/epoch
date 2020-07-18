@@ -241,8 +241,9 @@ func TestParseFormatted(t *testing.T) {
 	}
 
 	type expecedType struct {
-		time time.Time
-		err  error
+		time   time.Time
+		layout string
+		err    error
 	}
 
 	testCases := []struct {
@@ -253,18 +254,19 @@ func TestParseFormatted(t *testing.T) {
 		{
 			description: "empty",
 			given:       givenType{formatted: ""},
-			expected:    expecedType{err: ErrParseFormatted},
+			expected:    expecedType{err: ErrParseFormatted, layout: ""},
 		},
 		{
 			description: "rfc1123",
 			given:       givenType{formatted: "Mon, 02 Jan 2006 15:04:05 UTC"},
-			expected:    expecedType{time: time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)},
+			expected:    expecedType{time: time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC), layout: time.RFC1123},
 		},
 	}
 
 	for _, tt := range testCases {
 		t.Run(tt.description, func(t *testing.T) {
-			parsed, err := ParseFormatted(tt.given.formatted)
+			parsed, layout, err := ParseFormatted(tt.given.formatted)
+			require.Equal(t, tt.expected.layout, layout)
 			if err != nil {
 				require.EqualError(t, tt.expected.err, err.Error(), err)
 				return
