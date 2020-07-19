@@ -29,6 +29,7 @@ func TestRun(t *testing.T) {
 		{name: "timedate/timezone/format", args: args{input: "2020-07-18 17:46:45.215239 +0200 CEST", formatFlag: "unix", tzFlag: "UTC", unitFlag: "guess"}, want: "Sat Jul 18 15:46:45 UTC 2020"},
 		{name: "timedate/timezone/unit/FAIL", args: args{input: "2020-07-18 17:46:45.215239 +0200 CEST", unitFlag: "ms", formatFlag: "unix", tzFlag: "UTC"}, wantErr: true},
 
+		{name: "timestamp/timezone/unitsuffix", args: args{input: "1595087205us", tzFlag: "Europe/Berlin", unitFlag: "guess"}, want: "1970-01-01 01:26:35.087205 +0100 CET"},
 		{name: "timestamp/timezone/unit", args: args{input: "1595087205", tzFlag: "Europe/Berlin", unitFlag: "ms"}, want: "1970-01-19 12:04:47.205 +0100 CET"},
 		{name: "timestamp/timezone", args: args{input: "1595087205", tzFlag: "UTC", unitFlag: "guess"}, want: "2020-07-18 15:46:45 +0000 UTC"},
 		{name: "timestamp/timezone/format", args: args{input: "1595087205", formatFlag: "ruby", tzFlag: "UTC", unitFlag: "guess"}, want: "Sat Jul 18 15:46:45 +0000 2020"},
