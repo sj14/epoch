@@ -16,63 +16,63 @@ import (
 
 func main() {
 	var (
-		unitFlag   = flag.String("unit", "guess", "unit for timestamps: s, ms, us, ns")
-		formatFlag = flag.String("format", "", "human readable output format, see readme for details")
-		tzFlag     = flag.String("tz", "", `the timezone to use, e.g. 'Local', 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York' (default "Local")`)
-		quietFlag  = flag.Bool("quiet", false, "don't output guessed units")
+		unit   = flag.String("unit", "guess", "unit for timestamps: s, ms, us, ns")
+		format = flag.String("format", "", "human readable output format, see readme for details")
+		tz     = flag.String("tz", "", `the timezone to use, e.g. 'Local', 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York' (default "Local")`)
+		quiet  = flag.Bool("quiet", false, "don't output guessed units")
 	)
 	flag.Parse()
 	input, err := readInput()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	result, err := run(input, time.Now().String(), *unitFlag, *formatFlag, *tzFlag, *quietFlag)
+	result, err := run(input, time.Now().String(), *unit, *format, *tz, *quiet)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println(result)
 }
 
-func run(input, now, unitFlag, formatFlag, tzFlag string, quietFlag bool) (string, error) {
+func run(input, now, unit, format, tz string, quiet bool) (string, error) {
 	if input == "" {
 		input = now
 	}
 
-	input, unitFlag, err := parseUnit(input, unitFlag)
+	input, unit, err := parseUnit(input, unit)
 	if err != nil {
 		return "", err
 	}
 
 	// If the input can be parsed as an int, we assume it's an epoch timestamp. Convert to formatted string.
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
-		t := parseTimestamp(unitFlag, i, quietFlag)
-		return formattedString(t, formatFlag, tzFlag), nil
+		t := parseTimestamp(unit, i, quiet)
+		return formattedString(t, format, tz), nil
 	}
 
 	// Likely not an epoch timestamp as input. But a timezone and/or format was specified. Convert formatted input to another timezone and/or format.
-	if tzFlag != "" || formatFlag != "" {
-		if unitFlag != "guess" {
+	if tz != "" || format != "" {
+		if unit != "guess" {
 			return "", fmt.Errorf("can't use unit flag together with timezone or format flag on a formatted string (omit -unit flag)")
 		}
 
-		t, format, err := epoch.ParseFormatted(input)
+		t, f, err := epoch.ParseFormatted(input)
 		if err != nil {
 			return "", fmt.Errorf("failed to convert input: %v", err)
 		}
 
-		if formatFlag != "" {
-			format = formatFlag
+		if format != "" {
+			f = format
 		}
 
-		return formattedString(t, format, tzFlag), nil
+		return formattedString(t, f, tz), nil
 	}
 
 	// Likely not an epoch timestamp as input, output formatted input time to timestamp.
-	if formatFlag != "" {
+	if format != "" {
 		return "", fmt.Errorf("can't use specific format when converting to timestamp (omit -format flag)")
 	}
 
-	return strconv.FormatInt(timestamp(input, unitFlag, quietFlag), 10), nil
+	return strconv.FormatInt(timestamp(input, unit, quiet), 10), nil
 }
 
 // read program input from stdin or argument
@@ -146,7 +146,7 @@ func location(tz string) *time.Location {
 	return loc
 }
 
-func timestamp(input, unitFlag string, quieteFlag bool) int64 {
+func timestamp(input, unitFlag string, quiete bool) int64 {
 	// convert fromatted string to time type
 	t, _, err := epoch.ParseFormatted(input)
 	if err != nil {
@@ -157,7 +157,7 @@ func timestamp(input, unitFlag string, quieteFlag bool) int64 {
 	if err != nil {
 		// use seconds as default unit
 		unit = epoch.UnitSeconds
-		if !quieteFlag {
+		if !quiete {
 			fmt.Println("using seconds as unit")
 		}
 	}
@@ -170,12 +170,12 @@ func timestamp(input, unitFlag string, quieteFlag bool) int64 {
 	return timestamp
 }
 
-func parseTimestamp(unitFlag string, i int64, quieteFlag bool) time.Time {
+func parseTimestamp(unitFlag string, i int64, quiete bool) time.Time {
 	unit, err := epoch.ParseUnit(unitFlag)
 	if err != nil {
 		unit = epoch.GuessUnit(i, time.Now())
 
-		if !quieteFlag {
+		if !quiete {
 			switch unit {
 			case epoch.UnitSeconds:
 				fmt.Fprintln(os.Stderr, "guessed unit: seconds")
