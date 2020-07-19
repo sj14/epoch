@@ -38,31 +38,7 @@ func run(input, now, unitFlag, formatFlag, tzFlag string, quietFlag bool) (strin
 		input = now
 	}
 
-	// use suffix of input as unit, e.g.
-	// "1234567890s" -> unit: "s"; input: "1234567890"
-	//
-	// keep "s" as last element in slice, otherwise,
-	// it will match all other units as they end with an "s", too.
-	for _, unit := range []string{"ns", "us", "ms", "s"} {
-		if !strings.HasSuffix(input, unit) {
-			continue
-		}
-
-		// check if remaining input is an integer, if not
-		// it might be a time zone ending with 'unit'.
-		// (I'm currently not aware of any, but let's be sure)
-		inputTrim := strings.TrimSuffix(input, unit)
-		if _, err := strconv.ParseInt(inputTrim, 10, 64); err != nil {
-			continue
-		}
-
-		if unitFlag != "guess" && unitFlag != unit {
-			return "", fmt.Errorf("mismatch between unit flag (%v) and input unit (%v)", unitFlag, unit)
-		}
-		unitFlag = unit
-		input = inputTrim
-		break
-	}
+	input, unitFlag = parseUnit(input, unitFlag)
 
 	// If the input can be parsed as an int, we assume it's an epoch timestamp. Convert to formatted string.
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
@@ -125,6 +101,35 @@ func readInput() (string, error) {
 		return "", fmt.Errorf("takes at most one input")
 	}
 	return flag.Arg(0), nil
+}
+
+func parseUnit(input, unitFlag string) (string, string) {
+	// use suffix of input as unit, e.g.
+	// "1234567890s" -> unit: "s"; input: "1234567890"
+	//
+	// keep "s" as last element in slice, otherwise,
+	// it will match all other units as they end with an "s", too.
+	for _, unit := range []string{"ns", "us", "ms", "s"} {
+		if !strings.HasSuffix(input, unit) {
+			continue
+		}
+
+		// check if remaining input is an integer, if not
+		// it might be a time zone ending with 'unit'.
+		// (I'm currently not aware of any, but let's be sure)
+		inputTrim := strings.TrimSuffix(input, unit)
+		if _, err := strconv.ParseInt(inputTrim, 10, 64); err != nil {
+			continue
+		}
+
+		if unitFlag != "guess" && unitFlag != unit {
+			log.Fatalf("mismatch between unit flag (%v) and input unit (%v)", unitFlag, unit)
+		}
+		unitFlag = unit
+		input = inputTrim
+		break
+	}
+	return input, unitFlag
 }
 
 func location(tz string) *time.Location {
