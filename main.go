@@ -197,8 +197,7 @@ func parseTimestamp(unitFlag string, i int64, quiete bool) time.Time {
 }
 
 func formattedString(t time.Time, format, tz string) string {
-	loc := location(tz)
-	t = t.In(loc)
+	t = t.In(location(tz))
 
 	format = strings.ToLower(format)
 
