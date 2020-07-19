@@ -38,7 +38,10 @@ func run(input, now, unitFlag, formatFlag, tzFlag string, quietFlag bool) (strin
 		input = now
 	}
 
-	input, unitFlag = parseUnit(input, unitFlag)
+	input, unitFlag, err := parseUnit(input, unitFlag)
+	if err != nil {
+		return "", err
+	}
 
 	// If the input can be parsed as an int, we assume it's an epoch timestamp. Convert to formatted string.
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
@@ -103,7 +106,7 @@ func readInput() (string, error) {
 	return flag.Arg(0), nil
 }
 
-func parseUnit(input, unitFlag string) (string, string) {
+func parseUnit(input, unitFlag string) (string, string, error) {
 	// use suffix of input as unit, e.g.
 	// "1234567890s" -> unit: "s"; input: "1234567890"
 	//
@@ -123,13 +126,12 @@ func parseUnit(input, unitFlag string) (string, string) {
 		}
 
 		if unitFlag != "guess" && unitFlag != unit {
-			log.Fatalf("mismatch between unit flag (%v) and input unit (%v)", unitFlag, unit)
+			return "", "", fmt.Errorf("mismatch between unit flag (%v) and input unit (%v)", unitFlag, unit)
 		}
-		unitFlag = unit
-		input = inputTrim
-		break
+
+		return inputTrim, unit, nil
 	}
-	return input, unitFlag
+	return input, unitFlag, nil
 }
 
 func location(tz string) *time.Location {
