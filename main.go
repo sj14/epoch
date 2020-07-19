@@ -46,9 +46,7 @@ func run(input, now, unitFlag, formatFlag, tzFlag string, quietFlag bool) (strin
 	// If the input can be parsed as an int, we assume it's an epoch timestamp. Convert to formatted string.
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
 		t := parseTimestamp(unitFlag, i, quietFlag)
-		loc := location(tzFlag)
-		t = t.In(loc)
-		return formattedString(t, formatFlag, ""), nil
+		return formattedString(t, formatFlag, tzFlag), nil
 	}
 
 	// Likely not an epoch timestamp as input. But a timezone and/or format was specified. Convert formatted input to another timezone and/or format.
@@ -62,9 +60,11 @@ func run(input, now, unitFlag, formatFlag, tzFlag string, quietFlag bool) (strin
 			return "", fmt.Errorf("failed to convert input: %v", err)
 		}
 
-		loc := location(tzFlag)
-		t = t.In(loc)
-		return formattedString(t, formatFlag, format), nil
+		if formatFlag != "" {
+			format = formatFlag
+		}
+
+		return formattedString(t, format, tzFlag), nil
 	}
 
 	// Likely not an epoch timestamp as input, output formatted input time to timestamp.
@@ -196,14 +196,14 @@ func parseTimestamp(unitFlag string, i int64, quieteFlag bool) time.Time {
 	return t
 }
 
-func formattedString(t time.Time, format, defaultFormat string) string {
+func formattedString(t time.Time, format, tz string) string {
+	loc := location(tz)
+	t = t.In(loc)
+
 	format = strings.ToLower(format)
 
 	switch format {
 	case "":
-		if defaultFormat != "" {
-			return t.Format(defaultFormat)
-		}
 		return t.String()
 	case "unix":
 		return t.Format(time.UnixDate)
