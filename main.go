@@ -14,20 +14,20 @@ import (
 	"github.com/sj14/epoch/epoch"
 )
 
-var versionStr = "undefined" // will be replaced during the build process
+var version = "undefined" // will be replaced during the build process
 
 func main() {
 	var (
-		unit    = flag.String("unit", "guess", "unit for timestamps: s, ms, us, ns")
-		format  = flag.String("format", "", "human readable output format, see readme for details")
-		tz      = flag.String("tz", "", `the timezone to use, e.g. 'Local', 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York' (default "Local")`)
-		quiet   = flag.Bool("quiet", false, "don't output guessed units")
-		version = flag.Bool("version", false, fmt.Sprintf("print version (%v)", versionStr))
+		unit        = flag.String("unit", "guess", "unit for timestamps: s, ms, us, ns")
+		format      = flag.String("format", "", "human readable output format, see readme for details")
+		tz          = flag.String("tz", "", `the timezone to use, e.g. 'Local', 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York' (default "Local")`)
+		quiet       = flag.Bool("quiet", false, "don't output guessed units")
+		versionFlag = flag.Bool("version", false, fmt.Sprintf("print version (%v)", version))
 	)
 	flag.Parse()
 
-	if *version {
-		fmt.Println(versionStr)
+	if *versionFlag {
+		fmt.Println(version)
 		os.Exit(0)
 	}
 
