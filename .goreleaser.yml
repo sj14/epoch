@@ -8,8 +8,11 @@ before:
 builds:
   - main: ./main.go
     #binary: epoch
+    flags:
+      - -v
+      - -i
     ldflags:
-      - -X main.versionStr=$(git describe --always --tags --long --dirty) # add version string
+      - "-s -w -X main.versionStr=$(git describe --always --tags --long --dirty)" # add version string
     env:
       - CGO_ENABLED=0
       - GO111MODULE=on
