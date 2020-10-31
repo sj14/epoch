@@ -65,16 +65,12 @@ func run(input, now, unit, format, tz string, quiet bool) (string, error) {
 			return "", fmt.Errorf("can't use unit flag together with timezone or format flag on a formatted string (omit -unit flag)")
 		}
 
-		t, f, err := epoch.ParseFormatted(input)
+		t, _, err := epoch.ParseFormatted(input)
 		if err != nil {
 			return "", fmt.Errorf("failed to convert input: %v", err)
 		}
 
-		if format != "" {
-			f = format
-		}
-
-		return formattedString(t, f, tz), nil
+		return formattedString(t, format, tz), nil
 	}
 
 	// Likely not an epoch timestamp as input, output formatted input time to timestamp.
