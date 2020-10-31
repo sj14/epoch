@@ -126,6 +126,13 @@ func GuessUnit(timestamp int64, ref time.Time) TimeUnit {
 // ErrParseFormatted is used when parsing the formatted string failed.
 var ErrParseFormatted = errors.New("failed to convert string to time")
 
+var (
+	// FormatGo handles Go's default time.Now() format (e.g. 2019-01-26 09:43:57.377055 +0100 CET m=+0.644739467)
+	FormatGo = "2006-01-02 15:04:05.999999999 -0700 MST"
+	// FormatSimple handles "2019-01-25 21:51:38"
+	FormatSimple = "2006-01-02 15:04:05.999999999"
+)
+
 // ParseFormatted takes a human readable time string and returns Go's default time type and the layout it recognized.
 // Example input: "Mon, 02 Jan 2006 15:04:05 MST".
 func ParseFormatted(input string) (time.Time, string, error) {
@@ -209,16 +216,13 @@ func ParseFormatted(input string) (time.Time, string, error) {
 		return t, http.TimeFormat, nil
 	}
 
-	// handle Go's default time.Now() format (e.g. 2019-01-26 09:43:57.377055 +0100 CET m=+0.644739467)
-	goTime := "2006-01-02 15:04:05.999999999 -0700 MST"
-	if t, err := time.Parse(goTime, strings.Split(input, " m=")[0]); err == nil {
-		return t, goTime, nil
+	if t, err := time.Parse(FormatGo, strings.Split(input, " m=")[0]); err == nil {
+		return t, FormatGo, nil
 	}
 
 	// "2019-01-25 21:51:38"
-	simple := "2006-01-02 15:04:05.999999999"
-	if t, err := time.Parse(simple, input); err == nil {
-		return t, simple, nil
+	if t, err := time.Parse(FormatSimple, input); err == nil {
+		return t, FormatSimple, nil
 	}
 
 	return time.Time{}, "", ErrParseFormatted
