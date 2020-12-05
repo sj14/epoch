@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -241,7 +240,7 @@ func formattedString(t time.Time, format, tz string) string {
 	case "stampns":
 		return t.Format(time.StampNano)
 	case "http":
-		return t.Format(http.TimeFormat)
+		return t.Format(epoch.FormatHTTP)
 	default:
 		fmt.Fprintf(os.Stderr, "failed to parse format '%v'\n", format)
 		return t.String()

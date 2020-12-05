@@ -3,7 +3,6 @@ package epoch
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -126,11 +125,13 @@ func GuessUnit(timestamp int64, ref time.Time) TimeUnit {
 // ErrParseFormatted is used when parsing the formatted string failed.
 var ErrParseFormatted = errors.New("failed to convert string to time")
 
-var (
+const (
 	// FormatGo handles Go's default time.Now() format (e.g. 2019-01-26 09:43:57.377055 +0100 CET m=+0.644739467)
 	FormatGo = "2006-01-02 15:04:05.999999999 -0700 MST"
 	// FormatSimple handles "2019-01-25 21:51:38"
 	FormatSimple = "2006-01-02 15:04:05.999999999"
+	// FormatHTTP instead of importing main with http.TimeFormat which would increase the binary size significantly.
+	FormatHTTP = "Mon, 02 Jan 2006 15:04:05 GMT"
 )
 
 // ParseFormatted takes a human readable time string and returns Go's default time type and the layout it recognized.
@@ -212,8 +213,8 @@ func ParseFormatted(input string) (time.Time, string, error) {
 	}
 
 	// "Mon, 02 Jan 2006 15:04:05 GMT"
-	if t, err := time.Parse(http.TimeFormat, input); err == nil {
-		return t, http.TimeFormat, nil
+	if t, err := time.Parse(FormatHTTP, input); err == nil {
+		return t, FormatHTTP, nil
 	}
 
 	if t, err := time.Parse(FormatGo, strings.Split(input, " m=")[0]); err == nil {
