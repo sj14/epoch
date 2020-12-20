@@ -1,6 +1,6 @@
 # epoch
 
-[![Build Status](https://travis-ci.org/sj14/epoch.svg?branch=master)](https://travis-ci.org/sj14/epoch)
+![Action](https://github.com/sj14/epoch/workflows/Go/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/sj14/epoch)](https://goreportcard.com/report/github.com/sj14/epoch)
 [![GoDoc](https://godoc.org/github.com/sj14/epoch/epoch?status.png)](https://godoc.org/github.com/sj14/epoch/epoch)
 
