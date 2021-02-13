@@ -18,8 +18,8 @@ var version = "undefined" // will be replaced during the build process
 func main() {
 	var (
 		unit        = flag.String("unit", "guess", "unit for timestamps: s, ms, us, ns")
-		format      = flag.String("format", "", "human readable output format, see readme for details")
-		tz          = flag.String("tz", "", `the timezone to use, e.g. 'Local', 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York' (default "Local")`)
+		format      = flag.String("format", "", "human readable output format, such as 'rfc3339' (see readme for details)")
+		tz          = flag.String("tz", "", `the timezone to use, e.g. 'Local' (default), 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York'`)
 		quiet       = flag.Bool("quiet", false, "don't output guessed units")
 		versionFlag = flag.Bool("version", false, fmt.Sprintf("print version (%v)", version))
 	)
@@ -41,24 +41,60 @@ func main() {
 	fmt.Println(result)
 }
 
-func run(input, now, unit, format, tz string, quiet bool) (string, error) {
+func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string, error) {
+	var (
+		err      error
+		input    = ""
+		operator = epoch.Undefined
+		duration time.Duration
+	)
+
+	if len(inputSlice) > 0 {
+		input = inputSlice[0]
+	}
+	if len(inputSlice) == 3 {
+		if operator, err = epoch.ToOperator(inputSlice[1]); err != nil {
+			return "", err
+		}
+		durationStr := inputSlice[2]
+
+		duration, err = time.ParseDuration(durationStr)
+		if err != nil {
+			return "", err
+		}
+	}
+
 	if input == "" {
 		input = now
 	}
 
-	input, unit, err := parseUnit(input, unit)
+	input, unit, err = parseUnit(input, unit)
 	if err != nil {
 		return "", err
 	}
 
+	log.Printf("input: %v\n", input)
+
 	// If the input can be parsed as an int, we assume it's an epoch timestamp. Convert to formatted string.
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
+		log.Printf("likely timestamp\n")
+
 		t := parseTimestamp(unit, i, quiet)
+
+		if operator != epoch.Undefined {
+			// when applying arithmetics here, return as timestamp again
+			t = epoch.Arithmetics(t, operator, duration)
+
+			// always quite as we already output unit above in parseTimestmap
+			return strconv.FormatInt(timestamp(t, unit, true), 10), nil
+		}
+
 		return formattedString(t, format, tz), nil
 	}
 
 	// Likely not an epoch timestamp as input. But a timezone and/or format was specified. Convert formatted input to another timezone and/or format.
 	if tz != "" || format != "" {
+		log.Printf("likely string to string")
 		if unit != "guess" {
 			return "", fmt.Errorf("can't use unit flag together with timezone or format flag on a formatted string (omit -unit flag)")
 		}
@@ -68,6 +104,7 @@ func run(input, now, unit, format, tz string, quiet bool) (string, error) {
 			return "", fmt.Errorf("failed to convert input: %v", err)
 		}
 
+		t = epoch.Arithmetics(t, operator, duration)
 		return formattedString(t, format, tz), nil
 	}
 
@@ -76,11 +113,20 @@ func run(input, now, unit, format, tz string, quiet bool) (string, error) {
 		return "", fmt.Errorf("can't use specific format when converting to timestamp (omit -format flag)")
 	}
 
-	return strconv.FormatInt(timestamp(input, unit, quiet), 10), nil
+	log.Printf("likely string to timestamp \n")
+
+	// convert fromatted string to time type
+	t, _, err := epoch.ParseFormatted(input)
+	if err != nil {
+		log.Fatalf("failed to convert input: %v", err)
+	}
+	t = epoch.Arithmetics(t, operator, duration)
+
+	return strconv.FormatInt(timestamp(t, unit, quiet), 10), nil
 }
 
 // read program input from stdin or argument
-func readInput() (string, error) {
+func readInput() ([]string, error) {
 	// from stdin/pipe
 	if flag.NArg() == 0 {
 
@@ -88,26 +134,33 @@ func readInput() (string, error) {
 		// https://stackoverflow.com/a/26567513
 		stat, err := os.Stdin.Stat()
 		if err != nil {
-			return "", fmt.Errorf("failed to get stdin stats: %v", err)
+			return nil, fmt.Errorf("failed to get stdin stats: %v", err)
 		}
 		if (stat.Mode() & os.ModeCharDevice) != 0 {
-			return "", nil
+			return nil, nil
 		}
 
 		// read the input from the pipe
 		reader := bufio.NewReader(os.Stdin)
 		input, err := reader.ReadString('\n')
 		if err != nil {
-			return "", fmt.Errorf("failed to read input: %v", err)
+			return nil, fmt.Errorf("failed to read input: %v", err)
 		}
-		return strings.TrimSpace(input), nil
+		return strings.Split(input, " "), nil
 	}
 
 	// from argument
-	if flag.NArg() > 1 {
-		return "", fmt.Errorf("takes at most one input")
+	if flag.NArg() != 1 && flag.NArg() > 3 {
+		return nil, fmt.Errorf("takes one to three inputs, got: %v", flag.NArg()) // TODO: print usage
 	}
-	return flag.Arg(0), nil
+
+	args := flag.Args()
+	if len(args) == 2 {
+		// 2 args, e.g. when using 'epoch + 1h'
+		args = append([]string{""}, args...)
+	}
+
+	return args, nil
 }
 
 func parseUnit(input, unitFlag string) (string, string, error) {
@@ -150,13 +203,7 @@ func location(tz string) *time.Location {
 	return loc
 }
 
-func timestamp(input, unitFlag string, quiete bool) int64 {
-	// convert fromatted string to time type
-	t, _, err := epoch.ParseFormatted(input)
-	if err != nil {
-		log.Fatalf("failed to convert input: %v", err)
-	}
-
+func timestamp(t time.Time, unitFlag string, quiete bool) int64 {
 	unit, err := epoch.ParseUnit(unitFlag)
 	if err != nil {
 		// use seconds as default unit

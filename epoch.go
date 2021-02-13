@@ -3,6 +3,7 @@ package epoch
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -227,4 +228,46 @@ func ParseFormatted(input string) (time.Time, string, error) {
 	}
 
 	return time.Time{}, "", ErrParseFormatted
+}
+
+// Operator for arithemtic operation.
+type Operator uint
+
+const (
+	// Undefined operator.
+	Undefined Operator = iota
+	// Add operation.
+	Add
+	// Sub operation.
+	Sub
+)
+
+// ErrUnkownOperator is returned when no matching operator was found.
+var ErrUnkownOperator = errors.New("unkown operator")
+
+// ToOperator return the matching operator to the given string.
+func ToOperator(s string) (Operator, error) {
+	switch s {
+	case "+", "add", "plus":
+		return Add, nil
+	case "-", "sub", "minus":
+		return Sub, nil
+	}
+	return Undefined, fmt.Errorf("%w: '%v'", ErrUnkownOperator, s)
+}
+
+// Arithmetics does basic add/sub calculations on the given input.
+func Arithmetics(input time.Time, op Operator, duration time.Duration) time.Time {
+	switch op {
+	case Undefined:
+		return input
+	case Add:
+		return input.Add(duration)
+	case Sub:
+		return input.Add(-duration)
+	default:
+		log.Fatalf("failed parsing operator: '%v'\n", op)
+	}
+
+	return time.Time{}
 }
