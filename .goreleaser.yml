@@ -64,6 +64,8 @@ archives:
   - id: epoch-full
     builds:
     - epoch-full
+    name_template: 
+    - "{{ .ProjectName }}-full_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
     wrap_in_directory: true
     format_overrides:
       - goos: windows
