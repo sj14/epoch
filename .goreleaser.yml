@@ -29,9 +29,9 @@ builds:
       - 6
       - 7
   - main: ./main.go
-    id: "epoch-full"
+    id: "epoch-full" # Emedding tzdata and removing arm build (fails)
     flags:
-      - -tags=timetzdata # Only addition between "noraml" and "full" binary
+      - -tags=timetzdata 
     env:
       - CGO_ENABLED=0
       - GO111MODULE=on
@@ -47,11 +47,7 @@ builds:
     goarch:
       - 386
       - amd64
-      - arm
       - arm64
-    goarm:
-      - 6
-      - 7
 
 
 archives:
