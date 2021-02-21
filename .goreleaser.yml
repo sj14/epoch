@@ -91,6 +91,8 @@ nfpms:
       - rpm
     builds:
       - epoch
+    dependencies:
+      - tzdata
 
 
 brews:
