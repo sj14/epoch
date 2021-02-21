@@ -42,7 +42,7 @@ The functionallity is implemented as a package and can be used in other programs
 
 ### Precompiled Binaries
 
-Binaries are available for all major platforms. See the [releases](https://github.com/sj14/epoch/releases) page.
+Binaries are available for all major platforms. See the [releases](https://github.com/sj14/epoch/releases) page. Usually, `epoch` uses the timezone data from the operating system. When the operating system has no timezone data installed, you can use the 'full' binaries which have this information embedded.
 
 ### Homebrew
 
