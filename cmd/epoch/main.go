@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sj14/epoch/epoch"
+	"github.com/sj14/epoch"
 )
 
 var version = "undefined" // will be replaced during the build process
