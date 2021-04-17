@@ -23,7 +23,7 @@ jobs:
           go get -v -t -d ./...
 
       - name: Build
-        run: go build -o epoch_bin -v .
+        run: go build -o epoch_bin -v ./cmd/epoch/main.go
 
       - name: Test
         run: go test -race ./...

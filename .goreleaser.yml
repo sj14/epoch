@@ -6,7 +6,7 @@ before:
   hooks:
     - go mod download
 builds:
-  - main: ./main.go
+  - main: ./cmd/epoch/main.go
     id: "epoch"
     env:
       - CGO_ENABLED=0
@@ -28,7 +28,7 @@ builds:
     goarm:
       - 6
       - 7
-  - main: ./main.go
+  - main: ./cmd/epoch/main.go
     id: "epoch-full" # Emedding tzdata and removing arm build (fails)
     flags:
       - -tags=timetzdata 
