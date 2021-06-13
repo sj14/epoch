@@ -41,26 +41,36 @@ func main() {
 	fmt.Println(result)
 }
 
+type opAndDuration struct {
+	operator epoch.Operator
+	duration time.Duration
+}
+
 func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string, error) {
 	var (
 		err      error
 		input    = ""
-		operator = epoch.Undefined
-		duration time.Duration
+		addOrSub []opAndDuration
 	)
 
 	if len(inputSlice) > 0 {
 		input = inputSlice[0]
 	}
-	if len(inputSlice) == 3 {
-		if operator, err = epoch.ToOperator(inputSlice[1]); err != nil {
-			return "", err
-		}
-		durationStr := inputSlice[2]
 
-		duration, err = time.ParseDuration(durationStr)
-		if err != nil {
-			return "", err
+	if len(inputSlice) >= 3 {
+		for i := 1; i < len(inputSlice); i = i + 2 {
+			operator, err := epoch.ToOperator(inputSlice[i])
+			if err != nil {
+				return "", err
+			}
+			durationStr := inputSlice[i+1]
+
+			duration, err := time.ParseDuration(durationStr)
+			if err != nil {
+				return "", err
+			}
+
+			addOrSub = append(addOrSub, opAndDuration{operator: operator, duration: duration})
 		}
 	}
 
@@ -81,10 +91,11 @@ func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string,
 
 		t := parseTimestamp(unit, i, quiet)
 
-		if operator != epoch.Undefined {
+		if len(addOrSub) > 0 {
 			// when applying arithmetics here, return as timestamp again
-			t = epoch.Arithmetics(t, operator, duration)
-
+			for _, aos := range addOrSub {
+				t = epoch.Arithmetics(t, aos.operator, aos.duration)
+			}
 			// always quite as we already output unit above in parseTimestmap
 			return strconv.FormatInt(timestamp(t, unit, true), 10), nil
 		}
@@ -104,7 +115,10 @@ func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string,
 			return "", fmt.Errorf("failed to convert input: %v", err)
 		}
 
-		t = epoch.Arithmetics(t, operator, duration)
+		for _, aos := range addOrSub {
+			t = epoch.Arithmetics(t, aos.operator, aos.duration)
+		}
+
 		return formattedString(t, format, tz), nil
 	}
 
@@ -120,7 +134,10 @@ func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string,
 	if err != nil {
 		log.Fatalf("failed to convert input: %v", err)
 	}
-	t = epoch.Arithmetics(t, operator, duration)
+
+	for _, aos := range addOrSub {
+		t = epoch.Arithmetics(t, aos.operator, aos.duration)
+	}
 
 	return strconv.FormatInt(timestamp(t, unit, quiet), 10), nil
 }
@@ -150,12 +167,12 @@ func readInput() ([]string, error) {
 	}
 
 	// from argument
-	if flag.NArg() != 1 && flag.NArg() > 3 {
-		return nil, fmt.Errorf("takes one to three inputs, got: %v", flag.NArg()) // TODO: print usage
-	}
+	// if flag.NArg() != 1 && flag.NArg() > 3 {
+	// 	return nil, fmt.Errorf("takes one to three inputs, got: %v", flag.NArg()) // TODO: print usage
+	// }
 
 	args := flag.Args()
-	if len(args) == 2 {
+	if len(args) >= 2 {
 		// 2 args, e.g. when using 'epoch + 1h'
 		args = append([]string{""}, args...)
 	}
