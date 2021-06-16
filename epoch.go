@@ -3,7 +3,6 @@ package epoch
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -248,25 +247,57 @@ var ErrUnkownOperator = errors.New("unkown operator")
 // ToOperator return the matching operator to the given string.
 func ToOperator(s string) (Operator, error) {
 	switch s {
-	case "+", "add", "plus":
+	case "+": //, "add", "plus":
 		return Add, nil
-	case "-", "sub", "minus":
+	case "-": //, "sub", "minus":
 		return Sub, nil
 	}
 	return Undefined, fmt.Errorf("%w: '%v'", ErrUnkownOperator, s)
 }
 
 // Arithmetics does basic add/sub calculations on the given input.
-func Arithmetics(input time.Time, op Operator, duration time.Duration) time.Time {
+func Arithmetics(input time.Time, op Operator, amount int, suffix string) time.Time {
 	switch op {
-	case Undefined:
-		return input
-	case Add:
-		return input.Add(duration)
+	// case Undefined:
+	// 	return input
+	// case Add:
+	// 	return input.Add(duration)
 	case Sub:
-		return input.Add(-duration)
-	default:
-		log.Fatalf("failed parsing operator: '%v'\n", op)
+		// return input.Add(-duration)
+		amount = -1 * amount
+		// default:
+		// 	log.Fatalf("failed parsing operator: '%v'\n", op)
+	}
+
+	var duration time.Duration = 0
+
+	switch suffix {
+	case "ns":
+		duration = time.Duration(amount) * time.Nanosecond
+		return input.Add(duration)
+	case "us":
+		duration = time.Duration(amount) * time.Microsecond
+		return input.Add(duration)
+	case "ms":
+		duration = time.Duration(amount) * time.Millisecond
+		return input.Add(duration)
+	case "s":
+		duration = time.Duration(amount) * time.Second
+		return input.Add(duration)
+	case "m":
+		duration = time.Duration(amount) * time.Minute
+		return input.Add(duration)
+	case "h":
+		duration = time.Duration(amount) * time.Hour
+		return input.Add(duration)
+	case "D":
+		return input.AddDate(0, 0, amount)
+	case "W":
+		return input.AddDate(0, 0, amount*7)
+	case "M":
+		return input.AddDate(0, amount, 0)
+	case "Y":
+		return input.AddDate(amount, 0, 0)
 	}
 
 	return time.Time{}

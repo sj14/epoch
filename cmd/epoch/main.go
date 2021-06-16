@@ -43,7 +43,9 @@ func main() {
 
 type opAndDuration struct {
 	operator epoch.Operator
-	duration time.Duration
+	// duration time.Duration
+	amount int
+	suffix string
 }
 
 func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string, error) {
@@ -65,12 +67,21 @@ func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string,
 			}
 			durationStr := inputSlice[i+1]
 
-			duration, err := time.ParseDuration(durationStr)
+			// duration, err := time.ParseDuration(durationStr)
+			// if err != nil {
+			// 	return "", err
+			// }
+
+			amountStr := durationStr[0 : len(durationStr)-1]
+
+			amount, err := strconv.Atoi(amountStr)
 			if err != nil {
 				return "", err
 			}
 
-			addOrSub = append(addOrSub, opAndDuration{operator: operator, duration: duration})
+			suffix := durationStr[len(durationStr)-1:]
+
+			addOrSub = append(addOrSub, opAndDuration{operator: operator, amount: amount, suffix: suffix})
 		}
 	}
 
@@ -94,7 +105,7 @@ func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string,
 		if len(addOrSub) > 0 {
 			// when applying arithmetics here, return as timestamp again
 			for _, aos := range addOrSub {
-				t = epoch.Arithmetics(t, aos.operator, aos.duration)
+				t = epoch.Arithmetics(t, aos.operator, aos.amount, aos.suffix)
 			}
 			// always quite as we already output unit above in parseTimestmap
 			return strconv.FormatInt(timestamp(t, unit, true), 10), nil
@@ -116,7 +127,7 @@ func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string,
 		}
 
 		for _, aos := range addOrSub {
-			t = epoch.Arithmetics(t, aos.operator, aos.duration)
+			t = epoch.Arithmetics(t, aos.operator, aos.amount, aos.suffix)
 		}
 
 		return formattedString(t, format, tz), nil
@@ -136,7 +147,7 @@ func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string,
 	}
 
 	for _, aos := range addOrSub {
-		t = epoch.Arithmetics(t, aos.operator, aos.duration)
+		t = epoch.Arithmetics(t, aos.operator, aos.amount, aos.suffix)
 	}
 
 	return strconv.FormatInt(timestamp(t, unit, quiet), 10), nil
