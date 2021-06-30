@@ -22,6 +22,7 @@ func main() {
 		tz          = flag.String("tz", "", `the timezone to use, e.g. 'Local' (default), 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York'`)
 		quiet       = flag.Bool("quiet", false, "don't output guessed units")
 		versionFlag = flag.Bool("version", false, fmt.Sprintf("print version (%v)", version))
+		calc        = flag.String("calc", "", "")
 	)
 	flag.Parse()
 
@@ -34,7 +35,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	result, err := run(input, time.Now().String(), *unit, *format, *tz, *quiet)
+	result, err := run(input, time.Now().String(), *calc, *unit, *format, *tz, *quiet)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -48,41 +49,44 @@ type opAndDuration struct {
 	suffix string
 }
 
-func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string, error) {
+func run(input string, now, calc string, unit, format, tz string, quiet bool) (string, error) {
 	var (
-		err      error
-		input    = ""
+		err error
+		// input    = ""
 		addOrSub []opAndDuration
 	)
 
-	if len(inputSlice) > 0 {
-		input = inputSlice[0]
-	}
+	// if len(inputSlice) > 0 {
+	// 	input = inputSlice[0]
+	// }
 
-	if len(inputSlice) >= 3 {
-		for i := 1; i < len(inputSlice); i = i + 2 {
-			operator, err := epoch.ToOperator(inputSlice[i])
-			if err != nil {
-				return "", err
-			}
-			durationStr := inputSlice[i+1]
-
-			// duration, err := time.ParseDuration(durationStr)
-			// if err != nil {
-			// 	return "", err
-			// }
-
-			amountStr := durationStr[0 : len(durationStr)-1]
-
-			amount, err := strconv.Atoi(amountStr)
-			if err != nil {
-				return "", err
-			}
-
-			suffix := durationStr[len(durationStr)-1:]
-
-			addOrSub = append(addOrSub, opAndDuration{operator: operator, amount: amount, suffix: suffix})
+	arithmetics := strings.Split(calc, " ")
+	for _, ari := range arithmetics {
+		log.Println(ari)
+		operator, err := epoch.ToOperator(ari[:1])
+		if err != nil {
+			return "", err
 		}
+		// durationStr := ari[i+1]
+
+		// // duration, err := time.ParseDuration(durationStr)
+		// // if err != nil {
+		// // 	return "", err
+		// // }
+
+		amountStr := ari[1 : len(ari)-1]
+
+		log.Println(amountStr)
+
+		amount, err := strconv.Atoi(amountStr)
+		if err != nil {
+			return "", err
+		}
+
+		suffix := ari[len(ari)-1:]
+		log.Println(suffix)
+
+		addOrSub = append(addOrSub, opAndDuration{operator: operator, amount: amount, suffix: suffix})
 	}
 
 	if input == "" {
@@ -154,7 +158,7 @@ func run(inputSlice []string, now, unit, format, tz string, quiet bool) (string,
 }
 
 // read program input from stdin or argument
-func readInput() ([]string, error) {
+func readInput() (string, error) {
 	// from stdin/pipe
 	if flag.NArg() == 0 {
 
@@ -162,33 +166,33 @@ func readInput() ([]string, error) {
 		// https://stackoverflow.com/a/26567513
 		stat, err := os.Stdin.Stat()
 		if err != nil {
-			return nil, fmt.Errorf("failed to get stdin stats: %v", err)
+			return "", fmt.Errorf("failed to get stdin stats: %v", err)
 		}
 		if (stat.Mode() & os.ModeCharDevice) != 0 {
-			return nil, nil
+			return "", nil
 		}
 
 		// read the input from the pipe
 		reader := bufio.NewReader(os.Stdin)
 		input, err := reader.ReadString('\n')
 		if err != nil {
-			return nil, fmt.Errorf("failed to read input: %v", err)
+			return "", fmt.Errorf("failed to read input: %v", err)
 		}
-		return strings.Split(input, " "), nil
+		return strings.TrimSpace(input), nil
 	}
 
 	// from argument
-	// if flag.NArg() != 1 && flag.NArg() > 3 {
-	// 	return nil, fmt.Errorf("takes one to three inputs, got: %v", flag.NArg()) // TODO: print usage
-	// }
-
-	args := flag.Args()
-	if len(args) >= 2 {
-		// 2 args, e.g. when using 'epoch + 1h'
-		args = append([]string{""}, args...)
+	if flag.NArg() != 1 && flag.NArg() > 3 {
+		return "", fmt.Errorf("takes one to three inputs, got: %v", flag.NArg()) // TODO: print usage
 	}
 
-	return args, nil
+	// args := flag.Args()
+	// if len(args) >= 2 {
+	// 	// 2 args, e.g. when using 'epoch + 1h'
+	// 	args = append([]string{""}, args...)
+	// }
+
+	return flag.Arg(0), nil
 }
 
 func parseUnit(input, unitFlag string) (string, string, error) {
