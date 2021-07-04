@@ -84,7 +84,7 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 
 	// If the input can be parsed as an int, we assume it's an epoch timestamp. Convert to formatted string.
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
-		t := parseTimestamp(unit, i, quiet)
+		t := parseTimestamp(unit, i, quiet).In(location(tz))
 
 		if len(calculations) > 0 {
 			// when applying arithmetics here, return as timestamp again
@@ -95,7 +95,6 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 			return strconv.FormatInt(timestamp(t, unit, true), 10), nil
 		}
 
-		t = t.In(location(tz))
 		return epoch.FormattedString(t, format), nil
 	}
 
@@ -109,12 +108,12 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 		if err != nil {
 			return "", fmt.Errorf("failed to convert input: %v", err)
 		}
+		t = t.In(location(tz))
 
 		for _, calc := range calculations {
 			t = epoch.Calculate(t, calc.operator, calc.amount, calc.unit)
 		}
 
-		t = t.In(location(tz))
 		return epoch.FormattedString(t, format), nil
 	}
 
@@ -128,6 +127,7 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 	if err != nil {
 		log.Fatalf("failed to convert input: %v", err)
 	}
+	t = t.In(location(tz))
 
 	for _, calc := range calculations {
 		t = epoch.Calculate(t, calc.operator, calc.amount, calc.unit)
