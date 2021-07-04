@@ -56,7 +56,9 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 
 	calcInpufStrings := strings.Split(calc, " ")
 	for _, calcInputString := range calcInpufStrings {
-		log.Println(calcInputString)
+		if strings.TrimSpace(calcInputString) == "" {
+			continue
+		}
 		operator, err := epoch.ToOperator(calcInputString[:1])
 		if err != nil {
 			return "", err
@@ -80,12 +82,8 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 		return "", err
 	}
 
-	log.Printf("input: %v\n", input)
-
 	// If the input can be parsed as an int, we assume it's an epoch timestamp. Convert to formatted string.
 	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
-		log.Printf("likely timestamp\n")
-
 		t := parseTimestamp(unit, i, quiet)
 
 		if len(calculations) > 0 {
@@ -97,12 +95,12 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 			return strconv.FormatInt(timestamp(t, unit, true), 10), nil
 		}
 
-		return epoch.FormattedString(t, format, tz), nil
+		t = t.In(location(tz))
+		return epoch.FormattedString(t, format), nil
 	}
 
 	// Likely not an epoch timestamp as input. But a timezone and/or format was specified. Convert formatted input to another timezone and/or format.
 	if tz != "" || format != "" {
-		log.Printf("likely string to string")
 		if unit != "guess" {
 			return "", fmt.Errorf("can't use unit flag together with timezone or format flag on a formatted string (omit -unit flag)")
 		}
@@ -116,15 +114,14 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 			t = epoch.Calculate(t, calc.operator, calc.amount, calc.unit)
 		}
 
-		return epoch.FormattedString(t, format, tz), nil
+		t = t.In(location(tz))
+		return epoch.FormattedString(t, format), nil
 	}
 
 	// Likely not an epoch timestamp as input, output formatted input time to timestamp.
 	if format != "" {
 		return "", fmt.Errorf("can't use specific format when converting to timestamp (omit -format flag)")
 	}
-
-	log.Printf("likely string to timestamp \n")
 
 	// convert fromatted string to time type
 	t, _, err := epoch.ParseFormatted(input)
@@ -241,4 +238,16 @@ func parseTimestamp(unitFlag string, i int64, quiete bool) time.Time {
 		log.Fatalf("failed to convert from timestamp: %v", err)
 	}
 	return t
+}
+
+func location(tz string) *time.Location {
+	if strings.ToLower(tz) == "local" || tz == "" {
+		tz = "Local" // capital is important
+	}
+
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		log.Fatalf("failed loading timezone '%v': %v\n", tz, err)
+	}
+	return loc
 }

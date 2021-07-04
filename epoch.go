@@ -3,7 +3,6 @@ package epoch
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -298,21 +297,8 @@ func Calculate(input time.Time, op Operator, amount int, unit string) time.Time 
 	return time.Time{}
 }
 
-func location(tz string) *time.Location {
-	if strings.ToLower(tz) == "local" || tz == "" {
-		tz = "Local" // capital is important
-	}
-
-	loc, err := time.LoadLocation(tz)
-	if err != nil {
-		log.Fatalf("failed loading timezone '%v': %v\n", tz, err)
-	}
-	return loc
-}
-
-func FormattedString(t time.Time, format, tz string) string {
-	t = t.In(location(tz))
-
+// FormattedString returns the given time in the given format (e.g. 'unix' or 'rfc3339').
+func FormattedString(t time.Time, format string) string {
 	format = strings.ToLower(format)
 
 	switch format {
