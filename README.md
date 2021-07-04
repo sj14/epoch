@@ -71,14 +71,18 @@ go get -u github.com/sj14/epoch/cmd/epoch
 
 ```text
 Usage of epoch:
+  -calc string
+        apply basic time calculations, e.g. '+30m -5h +3M -10Y'
   -format string
-        human readable output format, see readme for details
+        human readable output format, such as 'rfc3339' (see readme for details)
   -quiet
         don't output guessed units
   -tz string
-        the timezone to use, e.g. 'Local', 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York' (default "Local")
+        the timezone to use, e.g. 'Local' (default), 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York'
   -unit string
         unit for timestamps: s, ms, us, ns (default "guess")
+  -version
+        print version
 ```
 
 ## Examples
