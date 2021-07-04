@@ -3,6 +3,8 @@ package epoch
 import (
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -255,23 +257,16 @@ func ToOperator(s string) (Operator, error) {
 	return Undefined, fmt.Errorf("%w: '%v'", ErrUnkownOperator, s)
 }
 
-// Arithmetics does basic add/sub calculations on the given input.
-func Arithmetics(input time.Time, op Operator, amount int, suffix string) time.Time {
+// Calculate does basic add/sub calculations on the given input.
+func Calculate(input time.Time, op Operator, amount int, unit string) time.Time {
 	switch op {
-	// case Undefined:
-	// 	return input
-	// case Add:
-	// 	return input.Add(duration)
 	case Sub:
-		// return input.Add(-duration)
 		amount = -1 * amount
-		// default:
-		// 	log.Fatalf("failed parsing operator: '%v'\n", op)
 	}
 
 	var duration time.Duration = 0
 
-	switch suffix {
+	switch unit {
 	case "ns":
 		duration = time.Duration(amount) * time.Nanosecond
 		return input.Add(duration)
@@ -301,4 +296,62 @@ func Arithmetics(input time.Time, op Operator, amount int, suffix string) time.T
 	}
 
 	return time.Time{}
+}
+
+func location(tz string) *time.Location {
+	if strings.ToLower(tz) == "local" || tz == "" {
+		tz = "Local" // capital is important
+	}
+
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		log.Fatalf("failed loading timezone '%v': %v\n", tz, err)
+	}
+	return loc
+}
+
+func FormattedString(t time.Time, format, tz string) string {
+	t = t.In(location(tz))
+
+	format = strings.ToLower(format)
+
+	switch format {
+	case "":
+		return t.String()
+	case "unix":
+		return t.Format(time.UnixDate)
+	case "ruby":
+		return t.Format(time.RubyDate)
+	case "ansic":
+		return t.Format(time.ANSIC)
+	case "rfc822":
+		return t.Format(time.RFC822)
+	case "rfc822z":
+		return t.Format(time.RFC822Z)
+	case "rfc850":
+		return t.Format(time.RFC850)
+	case "rfc1123":
+		return t.Format(time.RFC1123)
+	case "rfc1123z":
+		return t.Format(time.RFC1123Z)
+	case "rfc3339":
+		return t.Format(time.RFC3339)
+	case "rfc3339nano":
+		return t.Format(time.RFC3339Nano)
+	case "kitchen":
+		return t.Format(time.Kitchen)
+	case "stamp":
+		return t.Format(time.Stamp)
+	case "stampms":
+		return t.Format(time.StampMilli)
+	case "stampus":
+		return t.Format(time.StampMicro)
+	case "stampns":
+		return t.Format(time.StampNano)
+	case "http":
+		return t.Format(FormatHTTP)
+	default:
+		fmt.Fprintf(os.Stderr, "failed to parse format '%v'\n", format)
+		return t.String()
+	}
 }

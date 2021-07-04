@@ -22,7 +22,7 @@ func main() {
 		tz          = flag.String("tz", "", `the timezone to use, e.g. 'Local' (default), 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York'`)
 		quiet       = flag.Bool("quiet", false, "don't output guessed units")
 		versionFlag = flag.Bool("version", false, fmt.Sprintf("print version (%v)", version))
-		calc        = flag.String("calc", "", "")
+		calc        = flag.String("calc", "", "apply basic time calculations, e.g. '+30m -5h +3M -10Y'")
 	)
 	flag.Parse()
 
@@ -42,51 +42,33 @@ func main() {
 	fmt.Println(result)
 }
 
-type opAndDuration struct {
+type calculation struct {
 	operator epoch.Operator
-	// duration time.Duration
-	amount int
-	suffix string
+	amount   int
+	unit     string
 }
 
 func run(input string, now, calc string, unit, format, tz string, quiet bool) (string, error) {
 	var (
-		err error
-		// input    = ""
-		addOrSub []opAndDuration
+		err          error
+		calculations []calculation
 	)
 
-	// if len(inputSlice) > 0 {
-	// 	input = inputSlice[0]
-	// }
-
-	arithmetics := strings.Split(calc, " ")
-	for _, ari := range arithmetics {
-		log.Println(ari)
-		operator, err := epoch.ToOperator(ari[:1])
-		if err != nil {
-			return "", err
-		}
-		// durationStr := ari[i+1]
-
-		// // duration, err := time.ParseDuration(durationStr)
-		// // if err != nil {
-		// // 	return "", err
-		// // }
-
-		amountStr := ari[1 : len(ari)-1]
-
-		log.Println(amountStr)
-
-		amount, err := strconv.Atoi(amountStr)
+	calcInpufStrings := strings.Split(calc, " ")
+	for _, calcInputString := range calcInpufStrings {
+		log.Println(calcInputString)
+		operator, err := epoch.ToOperator(calcInputString[:1])
 		if err != nil {
 			return "", err
 		}
 
-		suffix := ari[len(ari)-1:]
-		log.Println(suffix)
+		amount, err := strconv.Atoi(calcInputString[1 : len(calcInputString)-1])
+		if err != nil {
+			return "", err
+		}
 
-		addOrSub = append(addOrSub, opAndDuration{operator: operator, amount: amount, suffix: suffix})
+		suffix := calcInputString[len(calcInputString)-1:]
+		calculations = append(calculations, calculation{operator: operator, amount: amount, unit: suffix})
 	}
 
 	if input == "" {
@@ -106,16 +88,16 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 
 		t := parseTimestamp(unit, i, quiet)
 
-		if len(addOrSub) > 0 {
+		if len(calculations) > 0 {
 			// when applying arithmetics here, return as timestamp again
-			for _, aos := range addOrSub {
-				t = epoch.Arithmetics(t, aos.operator, aos.amount, aos.suffix)
+			for _, calc := range calculations {
+				t = epoch.Calculate(t, calc.operator, calc.amount, calc.unit)
 			}
 			// always quite as we already output unit above in parseTimestmap
 			return strconv.FormatInt(timestamp(t, unit, true), 10), nil
 		}
 
-		return formattedString(t, format, tz), nil
+		return epoch.FormattedString(t, format, tz), nil
 	}
 
 	// Likely not an epoch timestamp as input. But a timezone and/or format was specified. Convert formatted input to another timezone and/or format.
@@ -130,11 +112,11 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 			return "", fmt.Errorf("failed to convert input: %v", err)
 		}
 
-		for _, aos := range addOrSub {
-			t = epoch.Arithmetics(t, aos.operator, aos.amount, aos.suffix)
+		for _, calc := range calculations {
+			t = epoch.Calculate(t, calc.operator, calc.amount, calc.unit)
 		}
 
-		return formattedString(t, format, tz), nil
+		return epoch.FormattedString(t, format, tz), nil
 	}
 
 	// Likely not an epoch timestamp as input, output formatted input time to timestamp.
@@ -150,8 +132,8 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 		log.Fatalf("failed to convert input: %v", err)
 	}
 
-	for _, aos := range addOrSub {
-		t = epoch.Arithmetics(t, aos.operator, aos.amount, aos.suffix)
+	for _, calc := range calculations {
+		t = epoch.Calculate(t, calc.operator, calc.amount, calc.unit)
 	}
 
 	return strconv.FormatInt(timestamp(t, unit, quiet), 10), nil
@@ -186,12 +168,6 @@ func readInput() (string, error) {
 		return "", fmt.Errorf("takes one to three inputs, got: %v", flag.NArg()) // TODO: print usage
 	}
 
-	// args := flag.Args()
-	// if len(args) >= 2 {
-	// 	// 2 args, e.g. when using 'epoch + 1h'
-	// 	args = append([]string{""}, args...)
-	// }
-
 	return flag.Arg(0), nil
 }
 
@@ -221,18 +197,6 @@ func parseUnit(input, unitFlag string) (string, string, error) {
 		return inputTrim, unit, nil
 	}
 	return input, unitFlag, nil
-}
-
-func location(tz string) *time.Location {
-	if strings.ToLower(tz) == "local" || tz == "" {
-		tz = "Local" // capital is important
-	}
-
-	loc, err := time.LoadLocation(tz)
-	if err != nil {
-		log.Fatalf("failed loading timezone '%v': %v\n", tz, err)
-	}
-	return loc
 }
 
 func timestamp(t time.Time, unitFlag string, quiete bool) int64 {
@@ -277,50 +241,4 @@ func parseTimestamp(unitFlag string, i int64, quiete bool) time.Time {
 		log.Fatalf("failed to convert from timestamp: %v", err)
 	}
 	return t
-}
-
-func formattedString(t time.Time, format, tz string) string {
-	t = t.In(location(tz))
-
-	format = strings.ToLower(format)
-
-	switch format {
-	case "":
-		return t.String()
-	case "unix":
-		return t.Format(time.UnixDate)
-	case "ruby":
-		return t.Format(time.RubyDate)
-	case "ansic":
-		return t.Format(time.ANSIC)
-	case "rfc822":
-		return t.Format(time.RFC822)
-	case "rfc822z":
-		return t.Format(time.RFC822Z)
-	case "rfc850":
-		return t.Format(time.RFC850)
-	case "rfc1123":
-		return t.Format(time.RFC1123)
-	case "rfc1123z":
-		return t.Format(time.RFC1123Z)
-	case "rfc3339":
-		return t.Format(time.RFC3339)
-	case "rfc3339nano":
-		return t.Format(time.RFC3339Nano)
-	case "kitchen":
-		return t.Format(time.Kitchen)
-	case "stamp":
-		return t.Format(time.Stamp)
-	case "stampms":
-		return t.Format(time.StampMilli)
-	case "stampus":
-		return t.Format(time.StampMicro)
-	case "stampns":
-		return t.Format(time.StampNano)
-	case "http":
-		return t.Format(epoch.FormatHTTP)
-	default:
-		fmt.Fprintf(os.Stderr, "failed to parse format '%v'\n", format)
-		return t.String()
-	}
 }
