@@ -7,7 +7,7 @@
 `epoch` converts unix timestamps to human readable formats and vice versa.
 
 **Why?**  
-To convert timestamps to dates, you have to run different commands for different `date` implementations, such as GNU's, BSD's or Busybox's date implementation. For example, `date -d @1267619929` (GNU) vs `date -r 1267619929` (BSD), and what about handling nanosecond timestamps? Furthermore, have you ever tried converting a time formatted string such as `"2019-01-25 21:51:38 +0100 CET"` to a timestamp? Of course, you can do all this somehow, but all ways I've found so far were too cumbersome. This tool tries to solve all this with ease:
+To convert timestamps to dates, you have to run different commands for different `date` implementations, such as GNU's, BSD's or Busybox's date implementation. For example, `date -d @1267619929` (GNU) vs `date -r 1267619929` (BSD), and what about handling nanosecond timestamps? Furthermore, have you ever tried converting a time formatted string such as `"2019-01-25 21:51:38 +0100 CET"` to a timestamp? Of course, you can do all this somehow, but all ways I've found so far were too cumbersome. This tool tries to solve all this and more with ease:
 
 ```bash
 $ epoch "2019-01-25 21:51:38 +0100 CET"
@@ -34,6 +34,13 @@ Timestamp to formatted string of specific timezone:
 $ epoch -tz "America/New_York" 1595088886
 guessed unit: seconds
 2020-07-18 12:14:46 -0400 EDT
+```
+
+Basic calculations:
+
+```bash
+$ epoch -calc "-30m +1h -5D +3W -6M +2Y" -tz "local" "2020-07-18 17:46:45.215239 +0200 CEST"
+2022-02-03 18:16:45.215239 +0100 CET
 ```
 
 The functionallity is implemented as a package and can be used in other programs.
@@ -225,6 +232,32 @@ nanoseconds:
 ```bash
 $ epoch -unit ns "2019-01-25 21:51:38.272173 +0100 CET"
 1548449498272173000
+```
+
+### Arithmetics
+
+| Unit | Suffix |
+| ------|--------|
+| Nanoseconds | ns |
+| Microseconds | us |
+| Milliseconds | ms |
+| Seconds | s |
+| Minutes | m |
+| Hours | ns |
+| Days | D |
+| Weeks | W |
+| Months | M |
+| Years | Y |
+
+```bash
+$ epoch -calc "-30m +1h -5D +3W -6M +2Y" -tz "local" "2020-07-18 17:46:45.215239 +0200 CEST"
+2022-02-03 18:16:45.215239 +0100 CET
+```
+
+```bash
+$ epoch -calc "-30m +1h -5D +3W -6M +2Y" "2020-07-18 17:46:45.215239 +0200 CEST"            
+using seconds as unit
+1643908605
 ```
 
 ## Supported Formats
