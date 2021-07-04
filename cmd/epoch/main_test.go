@@ -44,7 +44,7 @@ func TestRun(t *testing.T) {
 		{name: "arithmetics timedate/unit", args: args{input: "2020-07-18 17:46:45.215239 +0200 CEST", calc: "+1h", unitFlag: "ms"}, want: "1595090805215"},
 		{name: "arithmetics timedate/timezone/add", args: args{input: "2020-07-18 17:46:45.215239 +0200 CEST", calc: "+1h", tzFlag: "MST", unitFlag: "guess"}, want: "2020-07-18 09:46:45.215239 -0700 MST"},
 		{name: "arithmetics timedate/timezone/sub", args: args{input: "2020-07-18 17:46:45.215239 +0200 CEST", calc: "-1h", tzFlag: "MST", unitFlag: "guess"}, want: "2020-07-18 07:46:45.215239 -0700 MST"},
-		{name: "arithmetics timedate/timezone/multiple", args: args{input: "2020-07-18 17:46:45.215239 +0200 CEST", calc: "-30m +1h -5D +3W -6M +2Y", tzFlag: "MST", unitFlag: "guess"}, want: "2022-02-03 10:16:45.215239 -0700 MST"},
+		{name: "arithmetics timedate/timezone/multiple", args: args{input: "2020-07-18 17:46:45.215239 +0200 CEST", calc: "-30m +1h -5D +3W -6M +2Y", tzFlag: "MST", unitFlag: "guess"}, want: "2022-02-03 09:16:45.215239 -0700 MST"},
 		{name: "arithmetics timedate/timezone/format", args: args{input: "2020-07-18 17:46:45.215239 +0200 CEST", calc: "+1h", formatFlag: "unix", tzFlag: "UTC", unitFlag: "guess"}, want: "Sat Jul 18 16:46:45 UTC 2020"},
 		{name: "arithmetics timedate/timezone/unit/FAIL", args: args{input: "2020-07-18 17:46:45.215239 +0200 CEST", calc: "+1h", unitFlag: "ms", formatFlag: "unix", tzFlag: "UTC"}, wantErr: true},
 

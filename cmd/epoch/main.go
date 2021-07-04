@@ -161,8 +161,8 @@ func readInput() (string, error) {
 	}
 
 	// from argument
-	if flag.NArg() != 1 && flag.NArg() > 3 {
-		return "", fmt.Errorf("takes one to three inputs, got: %v", flag.NArg()) // TODO: print usage
+	if flag.NArg() > 1 {
+		return "", fmt.Errorf("takes at most one input")
 	}
 
 	return flag.Arg(0), nil
