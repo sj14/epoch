@@ -19,7 +19,7 @@ func main() {
 	var (
 		unit        = flag.String("unit", "guess", "unit for timestamps: s, ms, us, ns")
 		format      = flag.String("format", "", "human readable output format, such as 'rfc3339' (see readme for details)")
-		tz          = flag.String("tz", "", `the timezone to use, e.g. 'Local' (default), 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York'`)
+		tz          = flag.String("tz", "Local", `the timezone to use, e.g. 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York'`)
 		quiet       = flag.Bool("quiet", false, "don't output guessed units")
 		versionFlag = flag.Bool("version", false, fmt.Sprintf("print version (%v)", version))
 		calc        = flag.String("calc", "", "apply basic time calculations, e.g. '+30m -5h +3M -10Y'")
