@@ -3,6 +3,7 @@ package epoch
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -227,4 +228,116 @@ func ParseFormatted(input string) (time.Time, string, error) {
 	}
 
 	return time.Time{}, "", ErrParseFormatted
+}
+
+// Operator for arithemtic operation.
+type Operator uint
+
+const (
+	// Undefined operator.
+	Undefined Operator = iota
+	// Add operation.
+	Add
+	// Sub operation.
+	Sub
+)
+
+// ErrUnkownOperator is returned when no matching operator was found.
+var ErrUnkownOperator = errors.New("unkown operator")
+
+// ToOperator return the matching operator to the given string.
+func ToOperator(s string) (Operator, error) {
+	switch s {
+	case "+": //, "add", "plus":
+		return Add, nil
+	case "-": //, "sub", "minus":
+		return Sub, nil
+	}
+	return Undefined, fmt.Errorf("%w: '%v'", ErrUnkownOperator, s)
+}
+
+// Calculate does basic add/sub calculations on the given input.
+func Calculate(input time.Time, op Operator, amount int, unit string) time.Time {
+	switch op {
+	case Sub:
+		amount = -1 * amount
+	}
+
+	var duration time.Duration = 0
+
+	switch unit {
+	case "ns":
+		duration = time.Duration(amount) * time.Nanosecond
+		return input.Add(duration)
+	case "us":
+		duration = time.Duration(amount) * time.Microsecond
+		return input.Add(duration)
+	case "ms":
+		duration = time.Duration(amount) * time.Millisecond
+		return input.Add(duration)
+	case "s":
+		duration = time.Duration(amount) * time.Second
+		return input.Add(duration)
+	case "m":
+		duration = time.Duration(amount) * time.Minute
+		return input.Add(duration)
+	case "h":
+		duration = time.Duration(amount) * time.Hour
+		return input.Add(duration)
+	case "D":
+		return input.AddDate(0, 0, amount)
+	case "W":
+		return input.AddDate(0, 0, amount*7)
+	case "M":
+		return input.AddDate(0, amount, 0)
+	case "Y":
+		return input.AddDate(amount, 0, 0)
+	}
+
+	return time.Time{}
+}
+
+// FormattedString returns the given time in the given format (e.g. 'unix' or 'rfc3339').
+func FormattedString(t time.Time, format string) string {
+	format = strings.ToLower(format)
+
+	switch format {
+	case "":
+		return t.String()
+	case "unix":
+		return t.Format(time.UnixDate)
+	case "ruby":
+		return t.Format(time.RubyDate)
+	case "ansic":
+		return t.Format(time.ANSIC)
+	case "rfc822":
+		return t.Format(time.RFC822)
+	case "rfc822z":
+		return t.Format(time.RFC822Z)
+	case "rfc850":
+		return t.Format(time.RFC850)
+	case "rfc1123":
+		return t.Format(time.RFC1123)
+	case "rfc1123z":
+		return t.Format(time.RFC1123Z)
+	case "rfc3339":
+		return t.Format(time.RFC3339)
+	case "rfc3339nano":
+		return t.Format(time.RFC3339Nano)
+	case "kitchen":
+		return t.Format(time.Kitchen)
+	case "stamp":
+		return t.Format(time.Stamp)
+	case "stampms":
+		return t.Format(time.StampMilli)
+	case "stampus":
+		return t.Format(time.StampMicro)
+	case "stampns":
+		return t.Format(time.StampNano)
+	case "http":
+		return t.Format(FormatHTTP)
+	default:
+		fmt.Fprintf(os.Stderr, "failed to parse format '%v'\n", format)
+		return t.String()
+	}
 }
