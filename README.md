@@ -247,7 +247,7 @@ $ epoch -unit ns "2019-01-25 21:51:38.272173 +0100 CET"
 | Milliseconds | ms |
 | Seconds | s |
 | Minutes | m |
-| Hours | ns |
+| Hours | h |
 | Days | D |
 | Weeks | W |
 | Months | M |
