@@ -82,9 +82,9 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 		return "", err
 	}
 
-	// If the input can be parsed as an int, we assume it's an epoch timestamp. Convert to formatted string.
-	if i, err := strconv.ParseInt(input, 10, 64); err == nil {
-		t := parseTimestamp(unit, i, quiet).In(location(tz))
+	// If the input can be parsed as a number, we assume it's an epoch timestamp. Convert to formatted string.
+	if i, err := strconv.ParseFloat(input, 64); err == nil {
+		t := parseTimestamp(unit, int64(i), quiet).In(location(tz))
 
 		if len(calculations) > 0 {
 			// when applying arithmetics here, return as timestamp again
