@@ -122,7 +122,7 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 		return "", fmt.Errorf("can't use specific format when converting to timestamp (omit -format flag)")
 	}
 
-	// convert fromatted string to time type
+	// convert formatted string to time type
 	t, _, err := epoch.ParseFormatted(input)
 	if err != nil {
 		log.Fatalf("failed to convert input: %v", err)
