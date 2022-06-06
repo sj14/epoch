@@ -3,7 +3,6 @@ package epoch
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -298,46 +297,46 @@ func Calculate(input time.Time, op Operator, amount int, unit string) time.Time 
 }
 
 // FormattedString returns the given time in the given format (e.g. 'unix' or 'rfc3339').
-func FormattedString(t time.Time, format string) string {
+// When 'format' is not recognized, it will return t.String() and an error.
+func FormattedString(t time.Time, format string) (string, error) {
 	format = strings.ToLower(format)
 
 	switch format {
 	case "":
-		return t.String()
+		return t.String(), nil
 	case "unix":
-		return t.Format(time.UnixDate)
+		return t.Format(time.UnixDate), nil
 	case "ruby":
-		return t.Format(time.RubyDate)
+		return t.Format(time.RubyDate), nil
 	case "ansic":
-		return t.Format(time.ANSIC)
+		return t.Format(time.ANSIC), nil
 	case "rfc822":
-		return t.Format(time.RFC822)
+		return t.Format(time.RFC822), nil
 	case "rfc822z":
-		return t.Format(time.RFC822Z)
+		return t.Format(time.RFC822Z), nil
 	case "rfc850":
-		return t.Format(time.RFC850)
+		return t.Format(time.RFC850), nil
 	case "rfc1123":
-		return t.Format(time.RFC1123)
+		return t.Format(time.RFC1123), nil
 	case "rfc1123z":
-		return t.Format(time.RFC1123Z)
+		return t.Format(time.RFC1123Z), nil
 	case "rfc3339":
-		return t.Format(time.RFC3339)
+		return t.Format(time.RFC3339), nil
 	case "rfc3339nano":
-		return t.Format(time.RFC3339Nano)
+		return t.Format(time.RFC3339Nano), nil
 	case "kitchen":
-		return t.Format(time.Kitchen)
+		return t.Format(time.Kitchen), nil
 	case "stamp":
-		return t.Format(time.Stamp)
+		return t.Format(time.Stamp), nil
 	case "stampms":
-		return t.Format(time.StampMilli)
+		return t.Format(time.StampMilli), nil
 	case "stampus":
-		return t.Format(time.StampMicro)
+		return t.Format(time.StampMicro), nil
 	case "stampns":
-		return t.Format(time.StampNano)
+		return t.Format(time.StampNano), nil
 	case "http":
-		return t.Format(FormatHTTP)
+		return t.Format(FormatHTTP), nil
 	default:
-		fmt.Fprintf(os.Stderr, "failed to parse format '%v'\n", format)
-		return t.String()
+		return t.String(), fmt.Errorf("failed to parse format %q", format)
 	}
 }

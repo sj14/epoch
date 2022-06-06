@@ -95,7 +95,7 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 			return strconv.FormatInt(timestamp(t, unit, true), 10), nil
 		}
 
-		return epoch.FormattedString(t, format), nil
+		return epoch.FormattedString(t, format)
 	}
 
 	// Likely not an epoch timestamp as input. But a timezone and/or format was specified. Convert formatted input to another timezone and/or format.
@@ -114,7 +114,7 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 			t = epoch.Calculate(t, calc.operator, calc.amount, calc.unit)
 		}
 
-		return epoch.FormattedString(t, format), nil
+		return epoch.FormattedString(t, format)
 	}
 
 	// Likely not an epoch timestamp as input, output formatted input time to timestamp.
