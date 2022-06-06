@@ -260,7 +260,7 @@ func ToOperator(s string) (Operator, error) {
 func Calculate(input time.Time, op Operator, amount int, unit string) time.Time {
 	switch op {
 	case Sub:
-		amount = -1 * amount
+		amount = -amount
 	}
 
 	var duration time.Duration = 0
