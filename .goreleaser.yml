@@ -63,7 +63,7 @@ release:
     name: epoch
   disable: false
   draft: false
-  prerelease: false
+  prerelease: auto
 
 changelog:
   filters:
