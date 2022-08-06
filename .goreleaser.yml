@@ -10,6 +10,10 @@ builds:
     binary: "epoch"
     env:
       - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
   - main: ./cmd/epoch/main.go
     id: "epoch-full" # Emedding tzdata
     binary: "epoch-full"
@@ -17,6 +21,10 @@ builds:
       - -tags=timetzdata
     env:
       - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
 
 archives:
   - id: epoch
@@ -53,6 +61,8 @@ brews:
     ids:
       - epoch
     skip_upload: auto
+    install: |
+      bin.install "epoch"
     tap:
       owner: sj14
       name: homebrew-tap
