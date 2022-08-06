@@ -61,6 +61,8 @@ brews:
     ids:
       - epoch
     skip_upload: auto
+    install: |
+      bin.install "epoch"
     tap:
       owner: sj14
       name: homebrew-tap
