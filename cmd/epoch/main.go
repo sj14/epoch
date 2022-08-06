@@ -10,10 +10,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sj14/epoch"
+	"github.com/sj14/epoch/pkg/epoch"
 )
 
-var version = "undefined" // will be replaced during the build process
+var (
+	// will be replaced during the build process
+	version = "undefined"
+	commit  = "undefined"
+	date    = "undefined"
+)
 
 func main() {
 	var (
@@ -21,13 +26,15 @@ func main() {
 		format      = flag.String("format", "", "human readable output format, such as 'rfc3339' (see readme for details)")
 		tz          = flag.String("tz", "", `the timezone to use, e.g. 'Local' (default), 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York'`)
 		quiet       = flag.Bool("quiet", false, "don't output guessed units")
-		versionFlag = flag.Bool("version", false, fmt.Sprintf("print version (%v)", version))
+		versionFlag = flag.Bool("version", false, fmt.Sprintf("print version information (version: %v, commit: %v, date: %v)", version, commit, date))
 		calc        = flag.String("calc", "", "apply basic time calculations, e.g. '+30m -5h +3M -10Y'")
 	)
 	flag.Parse()
 
 	if *versionFlag {
-		fmt.Println(version)
+		fmt.Printf("version: %v\n", version)
+		fmt.Printf("commit: %v\n", commit)
+		fmt.Printf("date: %v\n", date)
 		os.Exit(0)
 	}
 
@@ -35,10 +42,12 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
 	result, err := run(input, time.Now().String(), *calc, *unit, *format, *tz, *quiet)
 	if err != nil {
 		log.Fatalln(err)
 	}
+
 	fmt.Println(result)
 }
 

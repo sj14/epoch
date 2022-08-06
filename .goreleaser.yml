@@ -52,6 +52,7 @@ brews:
   - name: epoch
     ids:
       - epoch
+    skip_upload: auto
     tap:
       owner: sj14
       name: homebrew-tap
@@ -63,7 +64,7 @@ release:
     name: epoch
   disable: false
   draft: false
-  prerelease: false
+  prerelease: auto
 
 changelog:
   filters:
