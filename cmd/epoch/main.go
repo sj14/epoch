@@ -26,7 +26,7 @@ func main() {
 		format      = flag.String("format", "", "human readable output format, such as 'rfc3339' (see readme for details)")
 		tz          = flag.String("tz", "", `the timezone to use, e.g. 'Local' (default), 'UTC', or a name corresponding to the IANA Time Zone database, such as 'America/New_York'`)
 		quiet       = flag.Bool("quiet", false, "don't output guessed units")
-		versionFlag = flag.Bool("version", false, fmt.Sprintf("print version information (version: %v, commit: %v, date: %v)", version, commit, date))
+		versionFlag = flag.Bool("version", false, fmt.Sprintf("print version information of this release (%v)", version))
 		calc        = flag.String("calc", "", "apply basic time calculations, e.g. '+30m -5h +3M -10Y'")
 	)
 	flag.Parse()
