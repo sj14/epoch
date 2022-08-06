@@ -158,7 +158,7 @@ Sun Jan 18 23:07:29 1970
 
 #### guess the unit
 
-Guess the unit. Internally, the guess is done by comparing the number of digits with the current epoch timestamps (in `s`, `ms`, `us`, `ns`) of your machine. The smallest difference wins.
+Guess the unit. Internally, the guesssing is done by comparing the absolute difference of the current epoch timestamps (in `s`, `ms`, `us`, `ns`) of your machine with the input value. The smallest difference wins.
 
 seconds:
 
