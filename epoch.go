@@ -260,7 +260,7 @@ func Calculate(input time.Time, op Operator, amount int, unit string) time.Time 
 		amount = -amount
 	}
 
-	var duration time.Duration = 0
+	var duration time.Duration
 
 	switch unit {
 	case "ns":
