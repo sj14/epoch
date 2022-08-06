@@ -11,9 +11,8 @@ builds:
     env:
       - CGO_ENABLED=0
     goos:
-      - darwin
+      - darwin # doesn't require TZ data
       - linux
-      - windows
   - main: ./cmd/epoch/main.go
     id: "epoch-full" # Emedding tzdata
     binary: "epoch-full"
@@ -22,9 +21,8 @@ builds:
     env:
       - CGO_ENABLED=0
     goos:
-      - darwin
       - linux
-      - windows
+      - windows # requires TZ data
 
 archives:
   - id: epoch
