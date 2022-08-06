@@ -1,5 +1,4 @@
-# This is an example goreleaser.yaml file with some sane defaults.
-# Make sure to check the documentation at http://goreleaser.com
+---
 project_name: epoch
 
 before:
@@ -8,71 +7,26 @@ before:
 builds:
   - main: ./cmd/epoch/main.go
     id: "epoch"
+    binary: "epoch"
     env:
       - CGO_ENABLED=0
-      - GO111MODULE=on
-    goos:
-      - linux
-      - darwin
-      - freebsd
-      - openbsd
-      - netbsd
-      - solaris
-      - dragonfly
-      - windows
-    goarch:
-      - 386
-      - amd64
-      - arm
-      - arm64
-    goarm:
-      - 6
-      - 7
   - main: ./cmd/epoch/main.go
-    id: "epoch-full" # Emedding tzdata and removing arm build (fails)
+    id: "epoch-full" # Emedding tzdata
+    binary: "epoch-full"
     flags:
-      - -tags=timetzdata 
+      - -tags=timetzdata
     env:
       - CGO_ENABLED=0
-      - GO111MODULE=on
-    goos:
-      - linux
-      - darwin
-      - freebsd
-      - openbsd
-      - netbsd
-      - solaris
-      - dragonfly
-      - windows
-    goarch:
-      - 386
-      - amd64
-      - arm64
-
 
 archives:
   - id: epoch
     builds:
-    - epoch
-    wrap_in_directory: true
-    format_overrides:
-      - goos: windows
-        format: zip
-    files:
-      - LICENSE
-      - README.md
+      - epoch
+    format: binary
   - id: epoch-full
     builds:
-    - epoch-full
-    name_template: "{{ .ProjectName }}-full_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
-    wrap_in_directory: true
-    format_overrides:
-      - goos: windows
-        format: zip
-    files:
-      - LICENSE
-      - README.md
-
+      - epoch-full
+    format: binary
 
 checksum:
   name_template: "checksums.txt"
@@ -80,19 +34,19 @@ checksum:
 snapshot:
   name_template: "{{ .Tag }}-next-{{.Commit}}"
 
-nfpms:
-  - maintainer: Simon Jürgensmeyyer <simon.juergensmeyer@gmail.com>
-    homepage: https://github.com/sj14/epoch/
-    description: Easily convert epoch timestamps to human readable formats and vice versa.
-    license: MIT
-    formats:
-      - deb
-      - rpm
-    builds:
-      - epoch
-    dependencies:
-      - tzdata
-
+# nfpms:
+#   - maintainer: Simon Jürgensmeyyer <simon.juergensmeyer@gmail.com>
+#     homepage: https://github.com/sj14/epoch/
+#     description: Easily convert epoch timestamps to human readable formats and vice versa.
+#     license: MIT
+#     formats:
+#       - deb
+#       - rpm
+#       - apk # untested
+#     builds:
+#       - epoch
+#     dependencies:
+#       - tzdata
 
 brews:
   - name: epoch
