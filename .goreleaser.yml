@@ -12,7 +12,7 @@ builds:
       - CGO_ENABLED=0
     goos:
       - darwin # doesn't require TZ data
-      - linux
+      - linux  # needs `tzdata` package (often already installed)
   - main: ./cmd/epoch/main.go
     id: "epoch-full" # Emedding tzdata
     binary: "epoch-full"
@@ -21,7 +21,6 @@ builds:
     env:
       - CGO_ENABLED=0
     goos:
-      - linux
       - windows # requires TZ data
 
 archives:
