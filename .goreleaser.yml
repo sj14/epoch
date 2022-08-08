@@ -15,7 +15,7 @@ builds:
       - linux  # needs `tzdata` package (often already installed)
   - main: ./cmd/epoch/main.go
     id: "epoch-full" # Emedding tzdata
-    binary: "epoch-full"
+    binary: "epoch"
     flags:
       - -tags=timetzdata
     env:
