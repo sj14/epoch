@@ -124,12 +124,12 @@ func GuessUnit(timestamp int64, ref time.Time) TimeUnit {
 var ErrParseFormatted = errors.New("failed to convert string to time")
 
 const (
-	// FormatGo handles Go's default time.Now() format (e.g. 2019-01-26 09:43:57.377055 +0100 CET m=+0.644739467)
-	FormatGo = "2006-01-02 15:04:05.999999999 -0700 MST"
-	// FormatSimple handles "2019-01-25 21:51:38"
-	FormatSimple = "2006-01-02 15:04:05.999999999"
-	// FormatHTTP instead of importing main with http.TimeFormat which would increase the binary size significantly.
-	FormatHTTP = "Mon, 02 Jan 2006 15:04:05 GMT"
+	// TimeFormatGo handles Go's default time.Now() format (e.g. 2019-01-26 09:43:57.377055 +0100 CET m=+0.644739467)
+	TimeFormatGo = "2006-01-02 15:04:05.999999999 -0700 MST"
+	// TimeFormatSimple handles "2019-01-25 21:51:38"
+	TimeFormatSimple = "2006-01-02 15:04:05.999999999"
+	// TimeFormatHTTP instead of importing main with http.TimeFormat which would increase the binary size significantly.
+	TimeFormatHTTP = "Mon, 02 Jan 2006 15:04:05 GMT"
 )
 
 // ParseFormatted takes a human readable time string and returns Go's default time type and the layout it recognized.
@@ -211,17 +211,17 @@ func ParseFormatted(input string) (time.Time, string, error) {
 	}
 
 	// "Mon, 02 Jan 2006 15:04:05 GMT"
-	if t, err := time.Parse(FormatHTTP, input); err == nil {
-		return t, FormatHTTP, nil
+	if t, err := time.Parse(TimeFormatHTTP, input); err == nil {
+		return t, TimeFormatHTTP, nil
 	}
 
-	if t, err := time.Parse(FormatGo, strings.Split(input, " m=")[0]); err == nil {
-		return t, FormatGo, nil
+	if t, err := time.Parse(TimeFormatGo, strings.Split(input, " m=")[0]); err == nil {
+		return t, TimeFormatGo, nil
 	}
 
 	// "2019-01-25 21:51:38"
-	if t, err := time.Parse(FormatSimple, input); err == nil {
-		return t, FormatSimple, nil
+	if t, err := time.Parse(TimeFormatSimple, input); err == nil {
+		return t, TimeFormatSimple, nil
 	}
 
 	return time.Time{}, "", ErrParseFormatted
@@ -294,47 +294,65 @@ func Calculate(input time.Time, op Operator, amount int, unit string) time.Time 
 	return time.Time{}
 }
 
-// FormattedString returns the given time in the given format (e.g. 'unix' or 'rfc3339').
-// When 'format' is not recognized, it will return t.String() and an error.
-func FormattedString(t time.Time, format string) (string, error) {
+// FormatName returns the formatting to the given name (e.g. 'unix' or 'rfc3339').
+// When 'format' is not recognized, it will return Go's default format and an error.
+func FormatName(format string) (string, error) {
 	format = strings.ToLower(format)
 
 	switch format {
 	case "":
-		return t.String(), nil
+		return TimeFormatGo, nil
 	case "unix":
-		return t.Format(time.UnixDate), nil
+		return time.UnixDate, nil
 	case "ruby":
-		return t.Format(time.RubyDate), nil
+		return time.RubyDate, nil
 	case "ansic":
-		return t.Format(time.ANSIC), nil
+		return time.ANSIC, nil
 	case "rfc822":
-		return t.Format(time.RFC822), nil
+		return time.RFC822, nil
 	case "rfc822z":
-		return t.Format(time.RFC822Z), nil
+		return time.RFC822Z, nil
 	case "rfc850":
-		return t.Format(time.RFC850), nil
+		return time.RFC850, nil
 	case "rfc1123":
-		return t.Format(time.RFC1123), nil
+		return time.RFC1123, nil
 	case "rfc1123z":
-		return t.Format(time.RFC1123Z), nil
+		return time.RFC1123Z, nil
 	case "rfc3339":
-		return t.Format(time.RFC3339), nil
+		return time.RFC3339, nil
 	case "rfc3339nano":
-		return t.Format(time.RFC3339Nano), nil
+		return time.RFC3339Nano, nil
 	case "kitchen":
-		return t.Format(time.Kitchen), nil
+		return time.Kitchen, nil
 	case "stamp":
-		return t.Format(time.Stamp), nil
-	case "stampms":
-		return t.Format(time.StampMilli), nil
-	case "stampus":
-		return t.Format(time.StampMicro), nil
-	case "stampns":
-		return t.Format(time.StampNano), nil
+		return time.Stamp, nil
+	case "stampmilli":
+		return time.StampMilli, nil
+	case "stampmicro":
+		return time.StampMicro, nil
+	case "stampnano":
+		return time.StampNano, nil
 	case "http":
-		return t.Format(FormatHTTP), nil
+		return TimeFormatHTTP, nil
 	default:
-		return t.String(), fmt.Errorf("failed to parse format %q", format)
+		return TimeFormatGo, fmt.Errorf("failed to parse format %q", format)
 	}
+}
+
+// FormatSimple converts a simple format to Go's native formatting.
+func FormatSimple(format string) string {
+	format = strings.ReplaceAll(format, "YYYY", "2006") // Long year
+	format = strings.ReplaceAll(format, "YY", "06")     // Short year
+	format = strings.ReplaceAll(format, "MM", "01")     // Month (2-digit)
+	format = strings.ReplaceAll(format, "M", "1")       // Month (1-digit)
+	format = strings.ReplaceAll(format, "DD", "02")     // Day (2-digit)
+	format = strings.ReplaceAll(format, "D", "2")       // Day (1-digit)
+
+	format = strings.ReplaceAll(format, "hh", "15") // Hour (2-digit)
+	format = strings.ReplaceAll(format, "mm", "04") // Minute (2-digit)
+	format = strings.ReplaceAll(format, "m", "4")   // Minute (1-digit)
+	format = strings.ReplaceAll(format, "ss", "05") // Second (2-digit)
+	format = strings.ReplaceAll(format, "s", "5")   // Second (1-digit)
+
+	return format
 }

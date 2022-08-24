@@ -57,7 +57,7 @@ type calculation struct {
 	unit     string
 }
 
-func run(input string, now, calc string, unit, format, tz string, quiet bool) (string, error) {
+func run(input string, now, calc string, unit, formatName, tz string, quiet bool) (string, error) {
 	var (
 		err          error
 		calculations []calculation
@@ -104,11 +104,12 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 			return strconv.FormatInt(timestamp(t, unit, true), 10), nil
 		}
 
-		return epoch.FormattedString(t, format)
+		format, err := epoch.FormatName(formatName)
+		return t.Format(format), err
 	}
 
 	// Likely not an epoch timestamp as input. But a timezone and/or format was specified. Convert formatted input to another timezone and/or format.
-	if tz != "" || format != "" {
+	if tz != "" || formatName != "" {
 		if unit != "guess" {
 			return "", fmt.Errorf("can't use unit flag together with timezone or format flag on a formatted string (omit -unit flag)")
 		}
@@ -123,11 +124,12 @@ func run(input string, now, calc string, unit, format, tz string, quiet bool) (s
 			t = epoch.Calculate(t, calc.operator, calc.amount, calc.unit)
 		}
 
-		return epoch.FormattedString(t, format)
+		format, err := epoch.FormatName(formatName)
+		return t.Format(format), err
 	}
 
 	// Likely not an epoch timestamp as input, output formatted input time to timestamp.
-	if format != "" {
+	if formatName != "" {
 		return "", fmt.Errorf("can't use specific format when converting to timestamp (omit -format flag)")
 	}
 
