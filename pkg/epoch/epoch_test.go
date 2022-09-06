@@ -279,3 +279,57 @@ func TestParseFormatted(t *testing.T) {
 		})
 	}
 }
+
+func TestFormatSimple(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name   string
+		format string
+		want   string
+	}{
+		{
+			name:   "year-month-day long",
+			format: "YYYY-MM-DD",
+			want:   "2022-09-08",
+		},
+		{
+			name:   "month/day/year short",
+			format: "M/D/YY",
+			want:   "9/8/22",
+		},
+		{
+			name:   "hour:minute:second long",
+			format: "hh:mm:ss",
+			want:   "07:06:05",
+		},
+		{
+			name:   "second-minute short",
+			format: "s-m",
+			want:   "5-6",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			goFormat := FormatSimple(tt.format)
+			fixedDate := time.Date(
+				2022, // year
+				9,    // month
+				8,    // day
+				7,    // hour
+				6,    // minute
+				5,    // second
+				4,    // nanosecond
+				time.UTC,
+			)
+
+			if got := fixedDate.Format(goFormat); got != tt.want {
+				t.Errorf("ParseFormat() got %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
