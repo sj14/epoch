@@ -343,16 +343,39 @@ func FormatName(format string) (string, error) {
 func FormatSimple(format string) string {
 	format = strings.ReplaceAll(format, "YYYY", "2006") // Long year
 	format = strings.ReplaceAll(format, "YY", "06")     // Short year
-	format = strings.ReplaceAll(format, "MM", "01")     // Month (2-digit)
-	format = strings.ReplaceAll(format, "M", "1")       // Month (1-digit)
-	format = strings.ReplaceAll(format, "DD", "02")     // Day (2-digit)
-	format = strings.ReplaceAll(format, "D", "2")       // Day (1-digit)
 
-	format = strings.ReplaceAll(format, "hh", "15") // Hour (2-digit)
+	format = strings.ReplaceAll(format, "MMMM", "January")
+	format = strings.ReplaceAll(format, "MMM", "Jan")
+	format = strings.ReplaceAll(format, "MM", "01") // Month (2-digit)
+	format = strings.ReplaceAll(format, "M", "1")   // Month (1-digit)
+
+	format = strings.ReplaceAll(format, "DDDD", "002") // Day of year
+	format = strings.ReplaceAll(format, "DDDD", "__2") // Day of year
+
+	format = strings.ReplaceAll(format, "DD", "02") // Day of month (2-digit)
+	format = strings.ReplaceAll(format, "D", "2")   // Day of month (1-digit)
+
+	format = strings.ReplaceAll(format, "dddd", "Monday") // Day of week
+	format = strings.ReplaceAll(format, "ddd", "Mon")     // Day of week
+
+	format = strings.ReplaceAll(format, "HH", "15") // Hour 24 (2-digit)
+	format = strings.ReplaceAll(format, "hh", "03") // Hour 12 (2-digit)
+	format = strings.ReplaceAll(format, "h", "3")   // Hour 12 (1-digit)
+
 	format = strings.ReplaceAll(format, "mm", "04") // Minute (2-digit)
 	format = strings.ReplaceAll(format, "m", "4")   // Minute (1-digit)
+
 	format = strings.ReplaceAll(format, "ss", "05") // Second (2-digit)
 	format = strings.ReplaceAll(format, "s", "5")   // Second (1-digit)
+
+	format = strings.ReplaceAll(format, "A", "PM")
+	format = strings.ReplaceAll(format, "a", "pm")
+
+	// Timezone / Offset
+	format = strings.ReplaceAll(format, "ZZZ", "-07:00")
+	format = strings.ReplaceAll(format, "ZZ", "-0700")
+	format = strings.ReplaceAll(format, "Z", "-07")
+	format = strings.ReplaceAll(format, "z", "MST")
 
 	return format
 }
