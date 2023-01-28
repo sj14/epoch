@@ -368,6 +368,11 @@ func FormatSimple(format string) string {
 	format = strings.ReplaceAll(format, "ss", "05") // Second (2-digit)
 	format = strings.ReplaceAll(format, "s", "5")   // Second (1-digit)
 
+	// Arbitrary precision of fractional seconds.
+	// Must start with a dot for now, e.g. ".FFFF" as this is how Go handles it.
+	format = strings.ReplaceAll(format, "F", "0")
+	format = strings.ReplaceAll(format, "f", "9")
+
 	format = strings.ReplaceAll(format, "A", "PM")
 	format = strings.ReplaceAll(format, "a", "pm")
 
