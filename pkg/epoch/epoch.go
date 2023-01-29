@@ -362,6 +362,9 @@ func FormatSimple(format string) string {
 	format = strings.ReplaceAll(format, "{hh}", "03") // Hour 12 (2-digit)
 	format = strings.ReplaceAll(format, "{h}", "3")   // Hour 12 (1-digit)
 
+	format = strings.ReplaceAll(format, "{A}", "PM")
+	format = strings.ReplaceAll(format, "{a}", "pm")
+
 	format = strings.ReplaceAll(format, "{mm}", "04") // Minute (2-digit)
 	format = strings.ReplaceAll(format, "{m}", "4")   // Minute (1-digit)
 
@@ -369,13 +372,26 @@ func FormatSimple(format string) string {
 	format = strings.ReplaceAll(format, "{s}", "5")   // Second (1-digit)
 
 	// Arbitrary precision of fractional seconds.
-	// Must start with a dot for now, e.g. ".FFFF" as this is how Go handles it.
-	// TODO:
-	// format = strings.ReplaceAll(format, "{F}", "0")
-	// format = strings.ReplaceAll(format, "{f}", "9")
+	// The dot won't be removed from the output :-/
+	format = strings.ReplaceAll(format, "{F}", ".0")
+	format = strings.ReplaceAll(format, "{FF}", ".00")
+	format = strings.ReplaceAll(format, "{FFF}", ".000")
+	format = strings.ReplaceAll(format, "{FFFF}", ".0000")
+	format = strings.ReplaceAll(format, "{FFFFF}", ".00000")
+	format = strings.ReplaceAll(format, "{FFFFFF}", ".000000")
+	format = strings.ReplaceAll(format, "{FFFFFFF}", ".0000000")
+	format = strings.ReplaceAll(format, "{FFFFFFFF}", ".00000000")
+	format = strings.ReplaceAll(format, "{FFFFFFFFF}", ".000000000")
 
-	format = strings.ReplaceAll(format, "{A}", "PM")
-	format = strings.ReplaceAll(format, "{a}", "pm")
+	format = strings.ReplaceAll(format, "{f}", ".9")
+	format = strings.ReplaceAll(format, "{ff}", ".99")
+	format = strings.ReplaceAll(format, "{fff}", ".999")
+	format = strings.ReplaceAll(format, "{ffff}", ".9999")
+	format = strings.ReplaceAll(format, "{fffff}", ".99999")
+	format = strings.ReplaceAll(format, "{ffffff}", ".999999")
+	format = strings.ReplaceAll(format, "{fffffff}", ".9999999")
+	format = strings.ReplaceAll(format, "{ffffffff}", ".99999999")
+	format = strings.ReplaceAll(format, "{fffffffff}", ".999999999")
 
 	// Timezone / Offset
 	format = strings.ReplaceAll(format, "{ZZZ}", "-07:00")
