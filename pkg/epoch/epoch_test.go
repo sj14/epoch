@@ -290,22 +290,22 @@ func TestFormatSimple(t *testing.T) {
 	}{
 		{
 			name:   "year-month-day long",
-			format: "YYYY-MM-DD",
+			format: "{YYYY}-{MM}-{DD}",
 			want:   "2022-09-08",
 		},
 		{
 			name:   "month/day/year short",
-			format: "M/D/YY",
+			format: "{M}/{D}/{YY}",
 			want:   "9/8/22",
 		},
 		{
 			name:   "hour:minute:second long",
-			format: "hh:mm:ss",
+			format: "{hh}:{mm}:{ss}",
 			want:   "07:06:05",
 		},
 		{
 			name:   "second-minute short",
-			format: "s-m",
+			format: "{s}-{m}",
 			want:   "5-6",
 		},
 	}
