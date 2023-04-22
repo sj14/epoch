@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sj14/epoch/pkg/epoch"
+	"github.com/sj14/epoch/v3/pkg/epoch"
 )
 
 var (
