@@ -1,10 +1,11 @@
 name: Go
-
 on:
   pull_request:
     paths:
+      - go.sum
+      - go.mod
       - "**.go"
-
+      - .github/workflows/go.yml
 jobs:
   build:
     name: Test
