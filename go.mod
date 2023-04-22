@@ -1,4 +1,4 @@
-module github.com/sj14/epoch/v3
+module github.com/sj14/epoch/v4
 
 go 1.17
 
