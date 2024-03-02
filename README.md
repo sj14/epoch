@@ -67,7 +67,7 @@ brew install sj14/tap/epoch
 It's also possible to install the latest version with `go install`:
 
 ```bash
-go install github.com/sj14/epoch/cmd/epoch@v0
+go install github.com/sj14/epoch/cmd/epoch@latest
 ```
 
 ## Usage
