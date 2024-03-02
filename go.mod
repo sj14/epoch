@@ -1,6 +1,6 @@
-module github.com/sj14/epoch/v4
+module github.com/sj14/epoch
 
-go 1.17
+go 1.22
 
 require github.com/stretchr/testify v1.8.4
 
