@@ -4,6 +4,9 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/sj14/epoch)](https://goreportcard.com/report/github.com/sj14/epoch)
 [![GoDoc](https://godoc.org/github.com/sj14/epoch/epoch?status.png)](https://godoc.org/github.com/sj14/epoch/epoch)
 
+> [!NOTE]
+> I decided to go back to unstable releases. The major version 0 is the newest version, all other major versions are abandoned.
+
 `epoch` converts unix timestamps to human readable formats and vice versa.
 
 **Why?**  
