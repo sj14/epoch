@@ -64,10 +64,10 @@ brew install sj14/tap/epoch
 
 ### Manually
 
-It's also possible to install the current development snapshot with `go get`:
+It's also possible to install the latest version with `go install`:
 
 ```bash
-go get -u github.com/sj14/epoch/cmd/epoch
+go install github.com/sj14/epoch/cmd/epoch@v0
 ```
 
 ## Usage
