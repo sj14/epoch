@@ -20,6 +20,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v5
         with:
           version: latest
-          args: release --rm-dist
+          args: release --clean
         env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          # for pushing to the homebrew-tap repo
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }} 
