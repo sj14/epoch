@@ -2,6 +2,15 @@ module github.com/sj14/epoch/v4
 
 go 1.17
 
+retract (
+	v4.0.0-alpha.1
+	v4.0.0-alpha.2
+	v4.0.0-alpha.3
+	v4.0.0-alpha.4
+	v4.0.0-alpha.5 // retraction
+	[v4.0.0-0, v4.0.0-alpha.5]
+)
+
 require github.com/stretchr/testify v1.8.2
 
 require (
