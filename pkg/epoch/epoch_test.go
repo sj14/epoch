@@ -2,11 +2,28 @@ package epoch
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/require"
 )
+
+func equalError(t *testing.T, got, want error) {
+	t.Helper()
+
+	if (got == nil && want != nil) ||
+		(got != nil && want == nil) ||
+		(got.Error() != want.Error()) {
+		t.Fatalf("got %q, want %q\n", got, want)
+	}
+}
+
+func equal[T any](t *testing.T, got, want T) {
+	t.Helper()
+
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got '%#v', want '%#v\n", got, want)
+	}
+}
 
 func TestParseUnit(t *testing.T) {
 	testCases := []struct {
@@ -46,14 +63,13 @@ func TestParseUnit(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			unit, err := ParseUnit(tt.given)
 			if err != nil {
-				require.EqualError(t, tt.expectedErr, err.Error(), err)
+				equalError(t, err, tt.expectedErr)
 				return
 			} else if tt.expectedErr != nil {
-				require.EqualError(t, err, tt.expectedErr.Error(), tt.expectedErr)
+				equalError(t, err, tt.expectedErr)
 				return
 			}
-
-			require.Equal(t, tt.expected, unit)
+			equal(t, unit, tt.expected)
 		})
 	}
 }
@@ -109,14 +125,14 @@ func TestToTimestamp(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			timestamp, err := ToTimestamp(tt.given.time, tt.given.unit)
 			if err != nil {
-				require.EqualError(t, tt.expected.err, err.Error(), err)
+				equalError(t, err, tt.expected.err)
 				return
 			} else if tt.expected.err != nil {
-				require.EqualError(t, err, tt.expected.err.Error(), tt.expected.err)
+				equalError(t, err, tt.expected.err)
 				return
 			}
 
-			require.Equal(t, tt.expected.timestamp, timestamp)
+			equal(t, timestamp, tt.expected.timestamp)
 		})
 	}
 }
@@ -172,14 +188,14 @@ func TestParseTimestamp(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			timestamp, err := ParseTimestamp(tt.given.timestamp, tt.given.unit)
 			if err != nil {
-				require.EqualError(t, tt.expected.err, err.Error(), err)
+				equalError(t, err, tt.expected.err)
 				return
 			} else if tt.expected.err != nil {
-				require.EqualError(t, err, tt.expected.err.Error(), tt.expected.err)
+				equalError(t, err, tt.expected.err)
 				return
 			}
 
-			require.Equal(t, tt.expected.time.UTC(), timestamp.UTC())
+			equal(t, timestamp.UTC(), tt.expected.time.UTC())
 		})
 	}
 }
@@ -230,7 +246,7 @@ func TestGuessUnit(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.description, func(t *testing.T) {
 			unit := GuessUnit(tt.given.timestamp, tt.given.ref)
-			require.Equal(t, tt.expected.unit, unit)
+			equal(t, unit, tt.expected.unit)
 		})
 	}
 }
@@ -266,16 +282,16 @@ func TestParseFormatted(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(tt.description, func(t *testing.T) {
 			parsed, layout, err := ParseFormatted(tt.given.formatted)
-			require.Equal(t, tt.expected.layout, layout)
+			equal(t, layout, tt.expected.layout)
 			if err != nil {
-				require.EqualError(t, tt.expected.err, err.Error(), err)
+				equalError(t, err, tt.expected.err)
 				return
 			} else if tt.expected.err != nil {
-				require.EqualError(t, err, tt.expected.err.Error(), tt.expected.err)
+				equalError(t, err, tt.expected.err)
 				return
 			}
 
-			require.Equal(t, tt.expected.time, parsed)
+			equal(t, parsed, tt.expected.time)
 		})
 	}
 }
