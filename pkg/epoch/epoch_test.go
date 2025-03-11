@@ -281,7 +281,7 @@ func TestParseFormatted(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.description, func(t *testing.T) {
-			parsed, layout, err := ParseFormatted(tt.given.formatted)
+			parsed, layout, err := ParseFormatted(tt.given.formatted, time.Local)
 			equal(t, layout, tt.expected.layout)
 			if err != nil {
 				equalError(t, err, tt.expected.err)

@@ -134,93 +134,94 @@ const (
 
 // ParseFormatted takes a human readable time string and returns Go's default time type and the layout it recognized.
 // Example input: "Mon, 02 Jan 2006 15:04:05 MST".
-func ParseFormatted(input string) (time.Time, string, error) {
+// TZ is only used for inputs without a specific timezone, such as "2019-01-25 21:51:38".
+func ParseFormatted(input string, tz *time.Location) (time.Time, string, error) {
 	// "Mon, 02 Jan 2006 15:04:05 MST"
-	if t, err := time.Parse(time.RFC1123, input); err == nil {
+	if t, err := time.ParseInLocation(time.RFC1123, input, tz); err == nil {
 		return t, time.RFC1123, nil
 	}
 
 	// "Mon, 02 Jan 2006 15:04:05 -0700"
-	if t, err := time.Parse(time.RFC1123Z, input); err == nil {
+	if t, err := time.ParseInLocation(time.RFC1123Z, input, tz); err == nil {
 		return t, time.RFC1123Z, nil
 	}
 
 	// "2006-01-02T15:04:05Z07:00"
-	if t, err := time.Parse(time.RFC3339, input); err == nil {
+	if t, err := time.ParseInLocation(time.RFC3339, input, tz); err == nil {
 		return t, time.RFC3339, nil
 	}
 
 	// "2006-01-02T15:04:05.999999999Z07:00"
-	if t, err := time.Parse(time.RFC3339Nano, input); err == nil {
+	if t, err := time.ParseInLocation(time.RFC3339Nano, input, tz); err == nil {
 		return t, time.RFC3339Nano, nil
 	}
 
 	// "02 Jan 06 15:04 MST"
-	if t, err := time.Parse(time.RFC822, input); err == nil {
+	if t, err := time.ParseInLocation(time.RFC822, input, tz); err == nil {
 		return t, time.RFC822, nil
 	}
 
 	// "02 Jan 06 15:04 -0700"
-	if t, err := time.Parse(time.RFC822Z, input); err == nil {
+	if t, err := time.ParseInLocation(time.RFC822Z, input, tz); err == nil {
 		return t, time.RFC822Z, nil
 	}
 
 	// "Monday, 02-Jan-06 15:04:05 MST"
-	if t, err := time.Parse(time.RFC850, input); err == nil {
+	if t, err := time.ParseInLocation(time.RFC850, input, tz); err == nil {
 		return t, time.RFC850, nil
 	}
 
 	// "Mon Jan _2 15:04:05 2006"
-	if t, err := time.Parse(time.ANSIC, input); err == nil {
+	if t, err := time.ParseInLocation(time.ANSIC, input, tz); err == nil {
 		return t, time.ANSIC, nil
 	}
 
 	// "Mon Jan _2 15:04:05 MST 2006"
-	if t, err := time.Parse(time.UnixDate, input); err == nil {
+	if t, err := time.ParseInLocation(time.UnixDate, input, tz); err == nil {
 		return t, time.UnixDate, nil
 	}
 
 	// "Mon Jan 02 15:04:05 -0700 2006"
-	if t, err := time.Parse(time.RubyDate, input); err == nil {
+	if t, err := time.ParseInLocation(time.RubyDate, input, tz); err == nil {
 		return t, time.RubyDate, nil
 	}
 
 	// "3:04PM"
-	if t, err := time.Parse(time.Kitchen, input); err == nil {
+	if t, err := time.ParseInLocation(time.Kitchen, input, tz); err == nil {
 		return t, time.Kitchen, nil
 	}
 
 	// "Jan _2 15:04:05"
-	if t, err := time.Parse(time.Stamp, input); err == nil {
+	if t, err := time.ParseInLocation(time.Stamp, input, tz); err == nil {
 		return t, time.Stamp, nil
 	}
 
 	// "Jan _2 15:04:05.000"
-	if t, err := time.Parse(time.StampMilli, input); err == nil {
+	if t, err := time.ParseInLocation(time.StampMilli, input, tz); err == nil {
 		return t, time.StampMilli, nil
 	}
 
 	// "Jan _2 15:04:05.000000"
-	if t, err := time.Parse(time.StampMicro, input); err == nil {
+	if t, err := time.ParseInLocation(time.StampMicro, input, tz); err == nil {
 		return t, time.StampMicro, nil
 	}
 
 	// "Jan _2 15:04:05.000000000"
-	if t, err := time.Parse(time.StampNano, input); err == nil {
+	if t, err := time.ParseInLocation(time.StampNano, input, tz); err == nil {
 		return t, time.StampNano, nil
 	}
 
 	// "Mon, 02 Jan 2006 15:04:05 GMT"
-	if t, err := time.Parse(TimeFormatHTTP, input); err == nil {
+	if t, err := time.ParseInLocation(TimeFormatHTTP, input, tz); err == nil {
 		return t, TimeFormatHTTP, nil
 	}
 
-	if t, err := time.Parse(TimeFormatGo, strings.Split(input, " m=")[0]); err == nil {
+	if t, err := time.ParseInLocation(TimeFormatGo, strings.Split(input, " m=")[0], tz); err == nil {
 		return t, TimeFormatGo, nil
 	}
 
 	// "2019-01-25 21:51:38"
-	if t, err := time.Parse(TimeFormatSimple, input); err == nil {
+	if t, err := time.ParseInLocation(TimeFormatSimple, input, tz); err == nil {
 		return t, TimeFormatSimple, nil
 	}
 

@@ -114,7 +114,7 @@ func run(input string, now, calc string, unit, formatName, tz string, quiet bool
 			return "", fmt.Errorf("can't use unit flag together with timezone or format flag on a formatted string (omit -unit flag)")
 		}
 
-		t, _, err := epoch.ParseFormatted(input)
+		t, _, err := epoch.ParseFormatted(input, location(tz))
 		if err != nil {
 			return "", fmt.Errorf("failed to convert input: %v", err)
 		}
@@ -134,11 +134,10 @@ func run(input string, now, calc string, unit, formatName, tz string, quiet bool
 	}
 
 	// convert formatted string to time type
-	t, _, err := epoch.ParseFormatted(input)
+	t, _, err := epoch.ParseFormatted(input, location(tz))
 	if err != nil {
 		log.Fatalf("failed to convert input: %v", err)
 	}
-	t = t.In(location(tz))
 
 	for _, calc := range calculations {
 		t = epoch.Calculate(t, calc.operator, calc.amount, calc.unit)
