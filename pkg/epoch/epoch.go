@@ -85,39 +85,31 @@ func ParseTimestamp(timestamp int64, unit TimeUnit) (time.Time, error) {
 }
 
 // GuessUnit guesses if the input is sec, ms, us or ns based on
-// the difference to the 'ref' epoch times.
+// the difference to the 'ref' time.
 func GuessUnit(timestamp int64, ref time.Time) TimeUnit {
-	var (
-		asSec   = ref.Unix()
-		asMill  = ref.UnixNano() / (1000 * 1000)
-		asMicro = ref.UnixNano() / 1000
-		asNano  = ref.UnixNano()
+	candidates := []struct {
+		unit TimeUnit
+		val  int64
+	}{
+		{UnitSeconds, ref.Unix()},
+		{UnitMilliseconds, ref.UnixMilli()},
+		{UnitMicroseconds, ref.UnixMicro()},
+	}
 
-		diffSec   = abs(asSec - timestamp)
-		diffMill  = abs(asMill - timestamp)
-		diffMicro = abs(asMicro - timestamp)
-		diffNano  = abs(asNano - timestamp)
+	var (
+		bestUnit = UnitNanoseconds
+		bestDiff = abs(ref.UnixNano() - timestamp)
 	)
 
-	// TODO: maybe there is a better way to do this guessing.
-	if diffSec <= diffMill &&
-		diffSec <= diffMicro &&
-		diffSec <= diffNano {
-		// difference is closer to current seconds timestamp
-		return UnitSeconds
-	} else if diffMill <= diffSec &&
-		diffMill <= diffMicro &&
-		diffMill <= diffNano {
-		// difference is closer to current milliseconds timestamp
-		return UnitMilliseconds
-	} else if diffMicro <= diffSec &&
-		diffMicro <= diffMill &&
-		diffMicro <= diffNano {
-		// difference is closer to current microseconds timestamp
-		return UnitMicroseconds
+	for _, c := range candidates {
+		diff := abs(c.val - timestamp)
+		if diff < bestDiff {
+			bestDiff = diff
+			bestUnit = c.unit
+		}
 	}
-	// difference is closer to current nanoseconds timestamp
-	return UnitNanoseconds
+
+	return bestUnit
 }
 
 // ErrParseFormatted is used when parsing the formatted string failed.
