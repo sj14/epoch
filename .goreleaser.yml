@@ -53,16 +53,24 @@ snapshot:
 #     dependencies:
 #       - tzdata
 
-brews:
+homebrew_casks:
   - name: epoch
     ids:
       - epoch
-    skip_upload: auto
-    install: |
-      bin.install "epoch"
+    skip_upload: false
     repository:
       owner: sj14
       name: homebrew-tap
+    description: Easily convert epoch timestamps to human readable formats and vice versa.
+
+nix:
+  - name: epoch
+    ids:
+      - epoch
+    skip_upload: false
+    repository:
+      owner: sj14
+      name: epoch
     description: Easily convert epoch timestamps to human readable formats and vice versa.
 
 release:
