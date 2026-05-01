@@ -38,23 +38,18 @@ func ParseUnit(input string) (TimeUnit, error) {
 
 // ToTimestamp takes Go's default time type returns a timestamp of the given unit.
 func ToTimestamp(t time.Time, unit TimeUnit) (int64, error) {
-	epoch := t.Unix()
-
 	switch unit {
 	case UnitSeconds:
-		// calculated as default value,
-		// nothing to to
+		return t.Unix(), nil
 	case UnitMilliseconds:
-		epoch = t.UnixNano() / (1000 * 1000)
+		return t.UnixMilli(), nil
 	case UnitMicroseconds:
-		epoch = t.UnixNano() / 1000
+		return t.UnixMicro(), nil
 	case UnitNanoseconds:
-		epoch = t.UnixNano()
+		return t.UnixNano(), nil
 	default:
-		return 255, fmt.Errorf("unknown unit '%v'", unit)
+		return 0, fmt.Errorf("unknown unit '%v'", unit)
 	}
-
-	return epoch, nil
 }
 
 func abs(i int64) int64 {
